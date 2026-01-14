@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Townhall 2026 Scoreboard</title>
+    <title>Townhall 2026 (Online & Sound Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,22 +19,21 @@
     <style>
         body { background-color: #f8fafc; color: #1e293b; overflow: hidden; }
         
-        /* Overlay สำหรับกดเริ่ม (แก้ปัญหาเสียงไม่ออก) */
+        /* Overlay ปุ่มกดเริ่ม (จำเป็นเพื่อให้เสียงทำงานบน GitHub/Web) */
         #start-overlay {
             position: fixed; inset: 0; z-index: 9999;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.98);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             transition: opacity 0.5s;
         }
-        
+
+        /* Styles */
         .display-card {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
         }
-        
         .score-anim { transition: transform 0.2s; display: inline-block; } 
         .score-anim.pop { transform: scale(1.4); color: #f59e0b; }
 
@@ -43,7 +42,6 @@
         .progress-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); transform: translateX(-100%); animation: shimmer 2s infinite; }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
 
-        /* Floating Items */
         @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .medal-icon { animation: medalFloat 3s ease-in-out infinite; display: inline-block; }
 
@@ -63,14 +61,13 @@
             background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%);
             background-size: 20px 20px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); 
         }
-        /* ปรับหอยทากให้เห็นเต็มตัว */
         .snail-racer { 
             position: absolute; left: 0; 
-            bottom: 5px; /* ยกขึ้นจากขอบล่าง */
-            font-size: 2.5rem; /* ขยายขนาด */
+            bottom: 5px; /* ยกขึ้นจากขอบ */
+            font-size: 2.5rem; 
             transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); 
             z-index: 20; 
-            transform: scaleX(-1); /* หันหน้าไปทางขวา */
+            transform: scaleX(-1); /* หันหน้าขวา */
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); 
         }
         
@@ -82,23 +79,25 @@
 <body class="flex flex-col h-full">
 
     <div id="start-overlay">
-        <h1 class="text-6xl font-bold text-white mb-8">🏆 Townhall 2026</h1>
+        <h1 class="text-6xl font-bold text-white mb-4">🏆 Townhall 2026</h1>
+        <p class="text-slate-400 mb-8 text-xl">ระบบนับคะแนน Online + เสียงดนตรี</p>
+        
         <div class="flex gap-6">
-            <button onclick="enterMode('display')" class="px-12 py-6 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-3xl font-bold shadow-lg transform hover:scale-105 transition-all">
-                📺 เปิดหน้าจอแสดงผล
+            <button id="btn-display" class="px-10 py-6 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-2xl font-bold shadow-lg transform hover:scale-105 transition-all flex items-center gap-3">
+                <span>📺</span> เข้าสู่หน้าจอแสดงผล
             </button>
-            <button onclick="enterMode('admin')" class="px-12 py-6 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl text-3xl font-bold shadow-lg transform hover:scale-105 transition-all">
-                🎛️ เปิดหน้าจอกรรมการ
+            <button id="btn-admin" class="px-10 py-6 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl text-2xl font-bold shadow-lg transform hover:scale-105 transition-all flex items-center gap-3">
+                <span>🎛️</span> เข้าสู่หน้าจอกรรมการ
             </button>
         </div>
-        <p class="text-slate-400 mt-8 text-lg">⚠️ ต้องกดปุ่มนี้เพื่อให้เสียงทำงาน</p>
+        <p class="text-slate-500 mt-8 text-sm">*ต้องกดปุ่มนี้เพื่อเปิดใช้งานเสียงและระบบออนไลน์</p>
     </div>
 
     <audio id="sfx-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     
-    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/187/187-preview.mp3"></audio>
+    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/904/904-preview.mp3"></audio> 
     <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
 
     <div id="display-view" class="hidden w-full h-screen flex-row bg-slate-50 relative overflow-hidden">
@@ -117,8 +116,7 @@
                 </div>
             </header>
 
-            <div id="ranking-list" class="flex-1 flex flex-col justify-start gap-4 overflow-y-auto pr-2 custom-scrollbar">
-                </div>
+            <div id="ranking-list" class="flex-1 flex flex-col justify-start gap-4 overflow-y-auto pr-2 custom-scrollbar"></div>
 
             <div class="mt-auto bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
                 <div class="flex items-center gap-3 mb-4">
@@ -128,7 +126,7 @@
                 <div id="racetrack-wrapper" class="flex flex-col gap-4 p-4 rounded-2xl relative">
                     <div class="finish-line-tape absolute right-8 top-0 bottom-0 w-8 h-full z-10"></div>
                     <div id="finish-confetti" class="absolute right-8 top-0 bottom-0 w-1"></div>
-                    </div>
+                </div>
             </div>
         </main>
 
@@ -137,8 +135,7 @@
                 <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <h2 class="text-lg font-bold text-slate-500 uppercase tracking-widest">Live Updates</h2>
             </div>
-            <div id="team-grid-container" class="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
-                </div>
+            <div id="team-grid-container" class="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2"></div>
         </aside>
     </div>
 
@@ -148,8 +145,8 @@
                 <h1 class="text-2xl font-bold text-slate-800">🎛️ แผงควบคุม</h1>
                 <div class="flex gap-3">
                     <input type="text" id="main-title-input" class="bg-slate-50 border rounded-xl px-4 py-2 text-center" placeholder="ชื่อกิจกรรม">
-                    <button onclick="resetAllDefault()" class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-600 shadow-lg shadow-red-200 transition-all">
-                        ⚠️ ล้างค่าเป็นเริ่มใหม่ (ชื่อไทย)
+                    <button id="btn-reset-all" class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-600 shadow-lg shadow-red-200 transition-all">
+                        ⚠️ ล้างค่าเริ่มใหม่
                     </button>
                 </div>
             </div>
@@ -172,21 +169,21 @@
             appId: "1:728485322328:web:783c2aeb40cefee23f342d"
         };
 
-        // เริ่มต้น Firebase
         let app, db;
         try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
+            console.log("Firebase Connected ✅");
         } catch (e) {
-            console.error("Firebase Error", e);
+            console.error("Firebase Error ❌", e);
+            alert("เชื่อมต่อ Firebase ไม่ได้!");
         }
 
         const TARGET_SCORE = 1500;
         let mainTitle = "Townhall 2026";
         let currentMode = '';
-        let currentBgmState = 'none'; // none, normal, excited
+        let currentBgmState = 'none';
 
-        // ข้อมูลเริ่มต้น (ภาษาไทยตามที่ขอ)
         const defaultData = [
             { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))' },
             { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 5px rgba(59, 130, 246, 0.6))' },
@@ -196,7 +193,10 @@
 
         let teams = JSON.parse(JSON.stringify(defaultData));
 
-        // --- Global Functions ---
+        // ==========================================
+        //  BINDING FUNCTIONS TO WINDOW (แก้ปัญหาปุ่มกดไม่ได้)
+        // ==========================================
+        
         window.enterMode = (mode) => {
             currentMode = mode;
             document.getElementById('start-overlay').style.opacity = '0';
@@ -206,8 +206,8 @@
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 playSound('click');
-                checkMusic(teams); // เริ่มเพลง
-                renderDisplay();   // วาดหน้าจอทันที
+                checkMusic(teams); 
+                renderDisplay();
             } else {
                 document.getElementById('admin-view').classList.remove('hidden');
                 renderAdmin();
@@ -226,8 +226,16 @@
             playSound('click');
         }
 
+        window.updateName = (index, val) => { if(db) update(ref(db, 'teams/' + index), { name: val }); }
+        
+        window.resetTeam = (index) => { 
+            if(db && confirm('รีเซ็ตทีมนี้?')) {
+                update(ref(db, 'teams/' + index), { score: 0, count: 0, hasFinished: false }); 
+            }
+        }
+
         window.resetAllDefault = () => {
-            if(confirm('⚠️ จะล้างค่าทั้งหมดและเปลี่ยนชื่อเป็น สีแดง/น้ำเงิน/เขียว/เหลือง ยืนยันไหม?')) {
+            if(confirm('⚠️ ล้างค่าทั้งหมดและรีเซ็ตชื่อทีม?')) {
                 const updates = {};
                 defaultData.forEach((t, i) => { updates['teams/' + i] = t; });
                 updates['title'] = "Townhall 2026";
@@ -235,10 +243,16 @@
             }
         }
 
-        window.updateName = (index, val) => { if(db) update(ref(db, 'teams/' + index), { name: val }); }
-        window.resetTeam = (index) => { if(db && confirm('รีเซ็ตทีมนี้?')) update(ref(db, 'teams/' + index), { score: 0, count: 0, hasFinished: false }); }
+        // Bind event listeners manually for Overlay & Admin Header to be safe
+        document.getElementById('btn-display').addEventListener('click', () => window.enterMode('display'));
+        document.getElementById('btn-admin').addEventListener('click', () => window.enterMode('admin'));
+        document.getElementById('btn-reset-all').addEventListener('click', () => window.resetAllDefault());
+        document.getElementById('main-title-input').addEventListener('input', (e) => {
+            if(db) update(ref(db), { title: e.target.value });
+        });
 
-        // --- Logic ---
+
+        // --- LOGIC ---
         if(db) {
             onValue(ref(db), (snapshot) => {
                 const data = snapshot.val();
@@ -269,20 +283,16 @@
             if(currentMode === 'admin') renderAdmin();
         }
 
-        // --- Music Logic ---
+        // --- MUSIC ---
         function checkMusic(teamData) {
             if(currentMode !== 'display') return;
-            
-            // ถ้าคะแนนสูงสุด >= 700 ให้เล่นเพลงตื่นเต้น
             let maxScore = Math.max(...teamData.map(t => t.score));
             let targetState = maxScore >= 700 ? 'excited' : 'normal';
 
             if(currentBgmState !== targetState) {
                 const bgmNormal = document.getElementById('bgm-normal');
                 const bgmExcited = document.getElementById('bgm-excited');
-                
-                bgmNormal.volume = 0.2; // เพลงปกติเบาๆ
-                bgmExcited.volume = 0.3; // เพลงตื่นเต้นดังหน่อย
+                bgmNormal.volume = 0.2; bgmExcited.volume = 0.3;
 
                 if(targetState === 'excited') {
                     bgmNormal.pause();
@@ -296,9 +306,9 @@
             }
         }
 
-        // --- Renderers ---
+        // --- RENDER DISPLAY ---
         function renderDisplay() {
-            // 1. Sidebar Cards
+            // 1. Sidebar
             const grid = document.getElementById('team-grid-container');
             if(grid) {
                 if(grid.children.length === 0) {
@@ -330,14 +340,14 @@
                 });
             }
 
-            // 2. Rankings
+            // 2. Ranking
             const rankContainer = document.getElementById('ranking-list');
             if(rankContainer) {
                 const sorted = [...teams].sort((a,b) => b.score - a.score);
                 rankContainer.innerHTML = sorted.map((t, idx) => {
                     let rankHTML = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<span class="text-slate-300">#${idx+1}</span>`;
                     let bgClass = idx === 0 ? 'bg-gradient-to-r from-yellow-50 to-white border-yellow-300' : 'bg-white/80 border-slate-200';
-                    if(idx === 0) rankHTML = '<span class="text-6xl drop-shadow-md">🥇</span>'; // ทองใหญ่พิเศษ
+                    if(idx === 0) rankHTML = '<span class="text-6xl drop-shadow-md">🥇</span>';
                     
                     return `
                     <div class="w-full ${bgClass} rounded-2xl border p-4 flex items-center justify-between transition-all shadow-sm">
@@ -360,19 +370,19 @@
             const raceWrapper = document.getElementById('racetrack-wrapper');
             if(raceWrapper) {
                 if(raceWrapper.getElementsByClassName('racetrack').length === 0) {
-                    raceWrapper.insertAdjacentHTML('afterbegin', teams.map((t, i) => `
+                    raceWrapper.innerHTML = teams.map((t, i) => `
                         <div class="racetrack relative h-16 bg-white rounded-full border-2 border-slate-200 overflow-hidden shadow-sm flex items-center mb-2">
                             <div class="absolute inset-0 opacity-10 ${t.bg}"></div>
                             <div class="absolute inset-0 flex items-center justify-center"><div class="w-full border-b-2 border-dashed border-slate-300"></div></div>
                             <div id="snail-${i}" class="snail-racer" style="filter: ${t.snailGlow}"><span class="relative z-10 block">🐌</span></div>
                         </div>
-                    `).join(''));
+                    `).join('');
                 }
                 teams.forEach((t, i) => {
                     const el = document.getElementById(`snail-${i}`);
                     if(el) {
                         const pct = Math.min(100, (t.score/TARGET_SCORE)*100);
-                        el.style.left = `calc(${pct}% - 3.5rem)`; // ลบขนาดตัวออกเพื่อให้หยุดพอดี
+                        el.style.left = `calc(${pct}% - 3.5rem)`;
                         if(pct >= 100) {
                             if(!el.innerHTML.includes('👑')) el.innerHTML = `<span class="winner-crown">👑</span><span class="relative z-10 block">🐌</span>`;
                             el.classList.add('winner-snail');
@@ -390,6 +400,7 @@
             }
         }
 
+        // --- RENDER ADMIN ---
         function renderAdmin() {
             const container = document.getElementById('admin-container');
             if(container) {
@@ -397,25 +408,24 @@
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 border-l-8 ${t.border.replace('text','border')}">
                         <div class="flex items-center gap-4 mb-4">
                             <div class="text-4xl">${t.icon}</div>
-                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-2xl font-bold bg-transparent border-b outline-none flex-1">
+                            <input type="text" value="${t.name}" onchange="window.updateName(${i}, this.value)" class="text-2xl font-bold bg-transparent border-b outline-none flex-1">
                         </div>
                         <div class="text-5xl font-black ${t.color} text-right mb-4">${t.score}</div>
                         <div class="grid grid-cols-3 gap-2 mb-2">
-                            <button onclick="addScore(${i}, 100)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+100</button>
-                            <button onclick="addScore(${i}, 200)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+200</button>
-                            <button onclick="addScore(${i}, 300)" class="py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold shadow">+300</button>
+                            <button onclick="window.addScore(${i}, 100)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+100</button>
+                            <button onclick="window.addScore(${i}, 200)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+200</button>
+                            <button onclick="window.addScore(${i}, 300)" class="py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold shadow">+300</button>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
-                            <button onclick="addScore(${i}, -100)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-100</button>
-                            <button onclick="addScore(${i}, -200)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-200</button>
-                            <button onclick="resetTeam(${i})" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">Reset</button>
+                            <button onclick="window.addScore(${i}, -100)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-100</button>
+                            <button onclick="window.addScore(${i}, -200)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-200</button>
+                            <button onclick="window.resetTeam(${i})" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">Reset</button>
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        // --- FX ---
         function showFloatingText(index, diff) {
             const card = document.getElementById(`card-${index}`);
             if(card) {
@@ -429,6 +439,7 @@
 
         function fireConfetti(colorName) {
             const container = document.getElementById('finish-confetti');
+            if(!container) return;
             const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308' };
             const hex = colorsMap[colorName] || '#000';
             for(let i=0; i<40; i++) {
