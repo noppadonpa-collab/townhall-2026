@@ -116,7 +116,7 @@
         .snail-racer {
             position: absolute;
             left: 0;
-            bottom: 5px; /* ปรับขึ้นมานิดหน่อยไม่ให้จม */
+            bottom: 4px; /* ปรับขึ้นมานิดหน่อยไม่ให้จม */
             font-size: 3rem; /* ขนาดใหญ่ขึ้น */
             transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 20;
@@ -162,13 +162,13 @@
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
-    <audio id="sfx-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
-    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+ <audio id="sfx-score" src="https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"></audio>
+    <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
+    <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
     
-    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/904/904-preview.mp3"></audio>
-    <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
+<audio id="bgm-normal" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/oedipus_wizball_highscore.mp3"></audio>
 
+<audio id="bgm-excited" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/bodenstaendig_2000_in_rock_4bit.mp3"></audio>
     <div id="mode-selector" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center space-y-8">
         <div class="text-center space-y-2">
             <h1 class="text-6xl font-bold text-slate-800 drop-shadow-sm">🏆 ระบบนับคะแนน Townhall 2026</h1>
