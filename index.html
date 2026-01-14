@@ -10,21 +10,14 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Prompt', 'sans-serif'],
-                    },
-                    colors: {
-                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' }
-                    }
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: { slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' } }
                 }
             }
         }
     </script>
     <style>
-        body { 
-            background-color: #f8fafc;
-            color: #1e293b; 
-        }
+        body { background-color: #f8fafc; color: #1e293b; overflow: hidden; }
         
         /* การ์ดทีม (ด้านขวา) */
         .display-card {
@@ -37,7 +30,7 @@
         
         /* Animation ตัวเลขเด้ง */
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .score-anim.pop { transform: scale(1.2); }
+        .score-anim.pop { transform: scale(1.3); }
 
         /* หลอดคะแนน */
         .progress-track {
@@ -61,9 +54,7 @@
             transform: translateX(-100%);
             animation: shimmer 2.5s infinite;
         }
-        @keyframes shimmer {
-            100% { transform: translateX(100%); }
-        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
 
         /* เหรียญลอย (Ranking) */
         @keyframes medalFloat {
@@ -125,7 +116,7 @@
         .snail-racer {
             position: absolute;
             left: 0;
-            bottom: 8px;
+            bottom: 5px; /* ปรับขึ้นมานิดหน่อยไม่ให้จม */
             font-size: 3rem; /* ขนาดใหญ่ขึ้น */
             transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 20;
@@ -138,9 +129,8 @@
             0%, 100% { transform: scaleX(-1) translateY(0) scaleY(1); }
             50% { transform: scaleX(-1) translateY(-15px) scaleY(1.15); }
         }
-        .winner-snail {
-            animation: happyBounce 0.6s ease-in-out infinite;
-        }
+        .winner-snail { animation: happyBounce 0.6s ease-in-out infinite; }
+        
         .winner-badge-container {
              transform: scaleX(-1);
              position: absolute;
@@ -151,47 +141,31 @@
              flex-direction: column;
              align-items: center;
         }
-        .winner-crown {
-            font-size: 1.8rem;
-            animation: medalFloat 2s ease-in-out infinite;
-        }
+        .winner-crown { font-size: 1.8rem; animation: medalFloat 2s ease-in-out infinite; }
         .finished-text {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #fff;
-            background-color: #22c55e;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            margin-top: -4px;
+            font-size: 0.7rem; font-weight: 800; color: #fff; background-color: #22c55e;
+            padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-top: -4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         /* Confetti เฉพาะจุดเส้นชัย */
         .confetti-finish {
-            position: absolute;
-            width: 8px; height: 8px;
-            z-index: 30;
-            border-radius: 50%;
-            animation: finishExplosion 1.5s ease-out forwards;
-            pointer-events: none;
+            position: absolute; width: 8px; height: 8px; z-index: 30;
+            border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none;
         }
         @keyframes finishExplosion {
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
             80% { opacity: 1; }
             100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
         }
-
     </style>
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
-    <!-- Audio Elements -->
     <audio id="sfx-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     
-    <!-- Background Music -->
     <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/904/904-preview.mp3"></audio>
     <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
 
@@ -201,11 +175,11 @@
             <p class="text-slate-400 text-lg">*กดปุ่มด้านล่างเพื่อเปิดใช้งานเสียง</p>
         </div>
         <div class="flex gap-8">
-            <button id="btn-enter-display" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
+            <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
                 <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">📺</div>
                 <div class="text-2xl font-bold text-slate-700">หน้าจอแสดงผล</div>
             </button>
-            <button id="btn-enter-admin" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
+            <button onclick="enterMode('admin')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
                 <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
                 <div class="text-2xl font-bold text-slate-700">หน้าจอกรรมการ</div>
             </button>
@@ -235,7 +209,6 @@
                 
                 <div id="racetrack-wrapper" class="flex flex-col gap-4 bg-slate-100/80 p-4 rounded-2xl relative overflow-hidden border border-slate-200 shadow-inner">
                     <div class="finish-line-tape absolute right-4 top-0 bottom-0 w-6 h-full z-10 shadow-sm"></div>
-                    
                     <div id="finish-line-confetti-container" class="absolute right-6 top-0 bottom-0 w-2 pointer-events-none z-30"></div>
                 </div>
             </div>
@@ -259,7 +232,7 @@
                 <div><h1 class="text-2xl font-bold text-slate-800">⚙️ แผงควบคุม</h1></div>
                 <div class="flex gap-4">
                      <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none w-64 font-medium transition-all" placeholder="Townhall 2026">
-                    <button id="btn-reset-all" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all">🗑️ ล้างคะแนน</button>
+                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all">🗑️ ล้างคะแนน</button>
                 </div>
             </div>
             <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -476,6 +449,7 @@
             }, 50);
         }
 
+        // ฟังก์ชั่นจุดพลุที่เส้นชัย
         function triggerFinishLineCelebration(colorName) {
             const container = document.getElementById('finish-line-confetti-container');
             const colorsMap = {
@@ -492,6 +466,7 @@
                 el.style.backgroundColor = colorHex;
                 el.style.top = Math.random() * 100 + '%';
                 
+                // สุ่มทิศทางการระเบิด
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 50 + Math.random() * 100;
                 el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
@@ -500,9 +475,12 @@
                 container.appendChild(el);
                 setTimeout(() => el.remove(), 1500);
             }
+            // แถมพลุใหญ่กลางจอด้วย
             createGlobalConfetti();
         }
 
+
+        // ฟังก์ชั่นแสดง Ranking อันใหญ่ด้านซ้าย
         function renderRankingMain() {
             const container = document.getElementById('ranking-list');
             const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
@@ -548,171 +526,159 @@
                     
                     <div class="flex items-center z-10">
                         ${rankDisplay}
-                        <div class="${iconSize} mr-5 drop-shadow-sm">${t.icon}</div>
                         <div>
-                            <h3 class="${nameSize} font-bold text-slate-800 leading-tight">${t.name}</h3>
+                            <div class="flex items-center gap-4">
+                                <span class="${iconSize} filter drop-shadow-sm">${t.icon}</span>
+                                <span class="font-extrabold text-slate-700 ${nameSize} tracking-tight">${t.name}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex-1 mx-8 z-10">
-                        <div class="progress-track h-8">
-                            <div class="progress-bar ${t.bg}" style="width: ${percent}%"></div>
-                        </div>
-                        <div class="flex justify-between mt-2 text-sm font-semibold text-slate-500">
-                            <span>${t.score} pts</span>
-                            <span>${percent.toFixed(1)}%</span>
+                    <div class="flex flex-col items-end justify-center z-10 w-1/2 h-full">
+                        <span class="font-black ${t.color} ${scoreSize} mb-2 leading-none filter drop-shadow-sm">${t.score}</span>
+                        <div class="progress-track h-5 w-full bg-slate-200/50 rounded-full overflow-hidden border border-slate-300/50">
+                             <div class="progress-bar ${t.bg} h-full rounded-full shadow-sm" style="width: ${percent}%"></div>
                         </div>
                     </div>
-
-                    <div class="${scoreSize} font-black ${t.color} leading-none drop-shadow-lg z-10">${t.score}</div>
                 </div>
                 `;
             }).join('');
         }
 
-        function showFloatingText(teamIndex, diff) {
-            const cardEl = document.getElementById(`card-${teamIndex}`);
-            if(!cardEl) return;
+        function showFloatingText(index, diff) {
+            const card = document.getElementById(`card-${index}`);
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            
+            const colorClass = teams[index].color; 
+            el.classList.add(colorClass); 
 
-            const floatEl = document.createElement('div');
-            floatEl.className = 'floating-score';
-            floatEl.innerText = `+${diff}`;
-            floatEl.style.color = teams[teamIndex].color.replace('text-', '');
+            el.innerText = (diff > 0 ? '+' : '') + diff;
+            
+            el.style.right = '20px';
+            el.style.top = '50%';
+            el.style.transform = 'translate(0, -50%)';
+            
+            card.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
 
-            cardEl.appendChild(floatEl);
-            setTimeout(() => floatEl.remove(), 1200);
+            // ถ้าคะแนนบวกเยอะๆ ให้จุดพลุใหญ่ด้วย
+            if(diff >= 300) createGlobalConfetti();
         }
 
-        function createGlobalConfetti() {
-            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#f59e0b', '#ec4899'];
-            for(let i=0; i<50; i++) {
-                const el = document.createElement('div');
-                el.className = 'confetti-general';
-                el.style.left = Math.random() * 100 + 'vw';
-                el.style.top = '-20px';
-                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                el.style.animationDelay = Math.random() * 0.5 + 's';
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 2500);
-            }
-        }
-
-        // --- ADMIN RENDERER ---
+        // --- ADMIN RENDERER (คงเดิม) ---
         function renderAdmin() {
             if(document.getElementById('admin-view').classList.contains('hidden')) return;
-
             document.getElementById('main-title-input').value = mainTitle;
-
             const container = document.getElementById('admin-container');
+            
             container.innerHTML = teams.map((t, i) => `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-4">
-                            <div class="text-5xl drop-shadow-sm">${t.icon}</div>
-                            <div>
-                                <input type="text" id="input-name-${i}" value="${t.name}" class="text-2xl font-bold text-slate-700 bg-transparent border-b-2 border-transparent hover:border-slate-200 focus:border-blue-500 outline-none transition-all w-40 px-2">
-                                <div class="text-sm text-slate-400 mt-1">Team #${i + 1}</div>
-                            </div>
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 border-l-8 ${t.border.replace('text','border')}">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-4xl bg-slate-50 p-3 rounded-2xl">${t.icon}</div>
+                        <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)"
+                            class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none flex-1">
+                    </div>
+                    
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div>
+                            <div class="text-5xl font-extrabold ${t.color}">${t.score}</div>
+                        </div>
+                         <div class="text-right">
+                             <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div>
+                             <div class="text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">
+                                ${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}
+                             </div>
                         </div>
                     </div>
 
-                    <div class="text-center mb-6 bg-slate-50 rounded-xl p-6">
-                        <div class="text-6xl font-black ${t.color} mb-2">${t.score}</div>
-                        <div class="text-slate-400 text-sm">คะแนนปัจจุบัน</div>
-                        <div class="text-slate-500 text-xs mt-2">อัพเดท: ${t.count} ครั้ง</div>
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <button onclick="addScore(${i}, 100)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all">+100</button>
+                        <button onclick="addScore(${i}, 200)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all">+200</button>
+                        <button onclick="addScore(${i}, 300)" class="py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all">+300</button>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        ${[10, 50, 100, 500].map(val => `
-                            <button onclick="addScore(${i}, ${val})" class="bg-green-50 hover:bg-green-500 text-green-600 hover:text-white border border-green-100 px-4 py-3 rounded-xl font-bold transition-all active:scale-95">
-                                +${val}
-                            </button>
-                        `).join('')}
+                    
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-100</button>
+                        <button onclick="addScore(${i}, -200)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-200</button>
+                        <button onclick="addScore(${i}, -300)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-300</button>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        ${[10, 50, 100, 500].map(val => `
-                            <button onclick="subtractScore(${i}, ${val})" class="bg-orange-50 hover:bg-orange-500 text-orange-600 hover:text-white border border-orange-100 px-4 py-3 rounded-xl font-bold transition-all active:scale-95">
-                                -${val}
-                            </button>
-                        `).join('')}
-                    </div>
-
-                    <div class="flex gap-3">
-                        <input type="number" id="input-custom-${i}" placeholder="กำหนดเอง" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-center focus:ring-2 focus:ring-blue-500 outline-none">
-                        <button onclick="setCustomScore(${i})" class="bg-blue-50 hover:bg-blue-500 text-blue-600 hover:text-white border border-blue-100 px-6 py-2 rounded-xl font-bold transition-all active:scale-95">
-                            ตั้งค่า
-                        </button>
+                    <div class="pt-4 border-t border-slate-100">
+                        <button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function addScore(teamIndex, amount) {
-            teams[teamIndex].score += amount;
-            teams[teamIndex].count++;
+        // --- ACTIONS ---
+        function addScore(index, val) {
+            teams[index].score += val;
+            if(teams[index].score < 0) teams[index].score = 0;
+            if(teams[index].score > TARGET_SCORE) teams[index].score = TARGET_SCORE; 
+            teams[index].count++;
             save();
-            playSound('click');
-            renderAdmin();
+            renderAdmin(); 
             renderDisplay();
         }
 
-        function subtractScore(teamIndex, amount) {
-            teams[teamIndex].score = Math.max(0, teams[teamIndex].score - amount);
-            teams[teamIndex].count++;
+        function updateName(index, val) {
+            teams[index].name = val;
             save();
-            playSound('click');
-            renderAdmin();
-            renderDisplay();
         }
 
-        function setCustomScore(teamIndex) {
-            const input = document.getElementById(`input-custom-${teamIndex}`);
-            const val = parseInt(input.value);
-            if(!isNaN(val) && val >= 0) {
-                teams[teamIndex].score = val;
-                teams[teamIndex].count++;
+        function resetTeam(index) {
+            if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) {
+                teams[index].score = 0;
+                teams[index].count = 0;
+                teams[index].hasFinished = false;
                 save();
-                playSound('click');
-                renderAdmin();
-                renderDisplay();
-                input.value = '';
-            }
-        }
-
-        document.getElementById('btn-reset-all').addEventListener('click', () => {
-            if(confirm('⚠️ ต้องการล้างคะแนนทั้งหมดใช่หรือไม่?')) {
-                teams = defaultData.map(t => ({...t}));
-                save();
-                playSound('click');
                 renderAdmin();
                 renderDisplay();
             }
-        });
+        }
 
-        document.getElementById('main-title-input').addEventListener('change', (e) => {
-            mainTitle = e.target.value || "Townhall 2026";
-            save();
-            renderDisplay();
-        });
-
-        document.getElementById('admin-container').addEventListener('change', (e) => {
-            if(e.target.id.startsWith('input-name-')) {
-                const idx = parseInt(e.target.id.split('-')[2]);
-                teams[idx].name = e.target.value || `ทีม ${idx + 1}`;
+        function resetAll() {
+            if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) {
+                teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; });
                 save();
+                renderAdmin();
                 renderDisplay();
+            }
+        }
+
+        // Confetti แบบทั่วจอ (ใช้ตอนบวกคะแนนเยอะๆ หรือตอนจบ)
+        function createGlobalConfetti() {
+            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308'];
+            for(let i=0; i<50; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-general';
+                el.style.left = Math.random()*100 + 'vw';
+                el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                el.style.animationDelay = Math.random() + 's';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 2500);
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if(e.key === 'sb_teams_v5') {
+                teams = JSON.parse(e.newValue);
+                renderDisplay();
+                renderAdmin();
+            }
+            if(e.key === 'sb_title_v5') {
+                mainTitle = e.newValue;
+                document.getElementById('display-title').innerText = mainTitle;
+                document.getElementById('main-title-input').value = mainTitle;
             }
         });
 
-        document.getElementById('btn-enter-display').addEventListener('click', () => enterMode('display'));
-        document.getElementById('btn-enter-admin').addEventListener('click', () => enterMode('admin'));
-
-        window.addEventListener('storage', () => {
-            teams = JSON.parse(localStorage.getItem('sb_teams_v5')) || defaultData;
-            mainTitle = localStorage.getItem('sb_title_v5') || "Townhall 2026";
-            renderDisplay();
-            renderAdmin();
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('main-title-input').addEventListener('input', (e) => {
+                mainTitle = e.target.value;
+                save();
+            });
         });
     </script>
 </body>
