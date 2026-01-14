@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard System (Townhall 2026 - Final)</title>
+    <title>Scoreboard System (Townhall 2026 - Final Music)</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,24 +19,29 @@
     <style>
         body { background-color: #f8fafc; color: #1e293b; }
         
-        /* Styles */
+        /* การ์ดทีม */
         .display-card {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .score-anim { transition: transform 0.2s; } 
+        
+        /* Animation */
+        .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-anim.pop { transform: scale(1.3); }
-        .progress-track { background-color: #f1f5f9; border-radius: 999px; overflow: hidden; }
-        .progress-bar { height: 100%; border-radius: 999px; transition: width 0.8s; position: relative; overflow: hidden; }
+
+        /* Progress Bar */
+        .progress-track { background-color: #f1f5f9; border-radius: 999px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; border-radius: 999px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
         .progress-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 2.5s infinite; }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
-        
+
         /* Floating Items */
         @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .medal-icon { animation: medalFloat 3s ease-in-out infinite; }
-        .floating-score { position: absolute; font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.2s ease-out forwards; pointer-events: none; z-index: 50; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 1px white; right: 20px; top: 50%; }
+
         @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
+        .floating-score { position: absolute; font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.2s ease-out forwards; pointer-events: none; z-index: 50; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 1px white; right: 20px; top: 50%; }
 
         /* Confetti */
         .confetti-general { position: fixed; width: 12px; height: 12px; z-index: 100; animation: confettiFall 2.5s linear forwards; pointer-events: none; }
@@ -46,16 +51,21 @@
 
         .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* Race Track */
+        /* Race Track (ปรับปรุงใหม่ให้สูงขึ้น) */
         #racetrack-wrapper { background: linear-gradient(to bottom, #f8fafc, #e2e8f0); box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
-        .finish-line-tape { background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%); background-size: 16px 16px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); }
-        .snail-racer { position: absolute; left: 0; bottom: 4px; font-size: 2.2rem; transition: left 1s; z-index: 20; transform: scaleX(-1); filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1)); }
+        .finish-line-tape { 
+            background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%);
+            background-size: 16px 16px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); 
+        }
+        /* ปรับตำแหน่งหอยทากให้ต่ำลง และมีพื้นที่หัวมากขึ้น */
+        .snail-racer { position: absolute; left: 0; bottom: 2px; font-size: 2.2rem; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 20; transform: scaleX(-1); filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1)); }
         
         @keyframes happyBounce { 0%, 100% { transform: scaleX(-1) translateY(0) scaleY(1); } 50% { transform: scaleX(-1) translateY(-12px) scaleY(1.1); } }
         .winner-snail { animation: happyBounce 0.8s ease-in-out infinite; }
+        
         .winner-badge-container { transform: scaleX(-1); position: absolute; top: -25px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; }
-        .winner-crown { font-size: 1.2rem; animation: medalFloat 2s infinite; }
-        .finished-text { font-size: 0.6rem; font-weight: 800; color: #fff; background-color: #22c55e; padding: 1px 4px; border-radius: 4px; margin-top: -4px; }
+        .winner-crown { font-size: 1.2rem; animation: medalFloat 2s ease-in-out infinite; }
+        .finished-text { font-size: 0.6rem; font-weight: 800; color: #fff; background-color: #22c55e; padding: 1px 4px; border-radius: 4px; white-space: nowrap; margin-top: -4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
@@ -64,14 +74,22 @@
     <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 
+    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/904/904-preview.mp3"></audio> 
+    <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
+
     <div id="mode-selector" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center space-y-8">
-        <h1 class="text-6xl font-bold text-slate-800 drop-shadow-sm">🏆 ระบบนับคะแนน Townhall 2026</h1>
+        <div class="text-center space-y-2">
+            <h1 class="text-6xl font-bold text-slate-800 drop-shadow-sm">🏆 ระบบนับคะแนน Townhall 2026</h1>
+            <p class="text-slate-500">ระบบออนไลน์ + ดนตรีประกอบ</p>
+        </div>
         <div class="flex gap-8">
-            <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl w-80 hover:shadow-2xl transition-all">
-                <div class="text-6xl mb-4">📺</div><div class="text-2xl font-bold text-slate-700">หน้าจอแสดงผล</div>
+            <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">📺</div>
+                <div class="text-2xl font-bold text-slate-700">หน้าจอแสดงผล</div>
             </button>
-            <button onclick="enterMode('admin')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl w-80 hover:shadow-2xl transition-all">
-                <div class="text-6xl mb-4">🎛️</div><div class="text-2xl font-bold text-slate-700">หน้าจอกรรมการ</div>
+            <button onclick="enterMode('admin')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
+                <div class="text-2xl font-bold text-slate-700">หน้าจอกรรมการ</div>
             </button>
         </div>
     </div>
@@ -93,7 +111,7 @@
 
             <div id="mascot-race-area" class="flex-shrink-0 pt-2 border-t border-slate-200/50">
                 <div class="flex justify-between items-center mb-2 px-2">
-                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">🏁 Race to Victory!</h3>
+                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">🏁 Race to Victory! <span class="text-sm text-slate-400 font-normal">(ใครถึงก่อนชนะ)</span></h3>
                 </div>
                 <div id="racetrack-wrapper" class="flex flex-col gap-3 bg-slate-100/80 p-4 rounded-2xl relative overflow-hidden border border-slate-200 shadow-inner">
                     <div class="finish-line-tape absolute right-4 top-0 bottom-0 w-6 h-full z-10 shadow-sm"></div>
@@ -104,7 +122,9 @@
 
         <aside class="w-[380px] bg-white/70 backdrop-blur-xl border-l border-slate-200 p-5 flex flex-col shadow-2xl z-20 relative h-full overflow-y-auto custom-scrollbar">
             <div class="mb-4 text-center sticky top-0 bg-white/0 backdrop-blur-md py-2 z-10">
-                <h2 class="text-xl font-bold text-slate-700 uppercase tracking-widest flex justify-center items-center gap-2">⚡ Live Updates</h2>
+                <h2 class="text-xl font-bold text-slate-700 uppercase tracking-widest flex justify-center items-center gap-2">
+                    ⚡ Live Updates
+                </h2>
             </div>
             <div id="team-grid-container" class="flex flex-col gap-4 pb-4"></div>
         </aside>
@@ -140,7 +160,7 @@
 
         let app, db;
         
-        // ข้อมูลเริ่มต้น (ใช้ทันทีเพื่อกันหน้าขาว)
+        // ข้อมูลเริ่มต้น
         const defaultData = [
             { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.8))' },
             { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' },
@@ -148,11 +168,11 @@
             { id: 3, name: 'สีเหลือง', score: 0, count: 0, hasFinished: false, color: 'text-yellow-500', bg: 'bg-yellow-400', icon: '🟡', border: 'border-yellow-400', snailGlow: 'drop-shadow(0 0 8px rgba(234, 179, 8, 0.8))' }
         ];
 
-        // ตัวแปร Global
-        let teams = JSON.parse(JSON.stringify(defaultData)); // Copy default data immediately
+        let teams = JSON.parse(JSON.stringify(defaultData)); 
         let mainTitle = "Townhall 2026";
         const TARGET_SCORE = 1500;
         let currentMode = '';
+        let musicState = 'none'; // none, normal, excited
 
         // --- เริ่มต้นระบบ ---
         try {
@@ -165,7 +185,7 @@
             alert("เชื่อมต่อ Firebase ไม่ได้ แต่ระบบจะทำงานแบบ Offline ชั่วคราว");
         }
 
-        // --- GLOBAL FUNCTIONS (ให้ HTML เรียกใช้) ---
+        // --- GLOBAL FUNCTIONS ---
         window.enterMode = (mode) => {
             currentMode = mode;
             document.getElementById('mode-selector').classList.add('hidden');
@@ -173,9 +193,10 @@
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 
-                // *** สำคัญ: สั่งวาดหน้าจอทันทีที่กดเข้าโหมด (ไม่ต้องรอ Firebase) ***
+                // เริ่มระบบวาดหน้าจอ + เล่นเสียง
                 renderDisplay(); 
-                playSound('click'); 
+                playSound('click');
+                updateBackgroundMusic(teams); // เริ่มเล่นเพลงทันที
             } else {
                 document.getElementById('admin-view').classList.remove('hidden');
                 renderAdmin();
@@ -221,12 +242,14 @@
                 if (!data) {
                     set(ref(db), { teams: defaultData, title: "Townhall 2026" });
                 } else {
-                    // Play Sounds
+                    // Logic สำหรับหน้าจอ Display
                     if(currentMode === 'display' && data.teams) {
                         data.teams.forEach((newT, i) => {
                             if(teams[i] && newT.score > teams[i].score) playSound('score');
                             if(teams[i] && newT.hasFinished && !teams[i].hasFinished) playSound('win');
                         });
+                        // เช็คและเปลี่ยนเพลงตามคะแนน
+                        updateBackgroundMusic(data.teams);
                     }
                     // Update Data
                     teams = data.teams || defaultData;
@@ -250,6 +273,41 @@
             if(db) update(ref(db), { title: e.target.value });
         });
 
+        // --- MUSIC LOGIC ---
+        function updateBackgroundMusic(teamData) {
+            if(currentMode !== 'display') return;
+
+            // หาคะแนนสูงสุด
+            let maxScore = 0;
+            teamData.forEach(t => {
+                if(t.score > maxScore) maxScore = t.score;
+            });
+
+            // ตรวจสอบเงื่อนไข: ถ้าคะแนน >= 700 ให้เล่นเพลงตื่นเต้น
+            const targetState = maxScore >= 700 ? 'excited' : 'normal';
+
+            if(musicState !== targetState) {
+                const bgmNormal = document.getElementById('bgm-normal');
+                const bgmExcited = document.getElementById('bgm-excited');
+
+                // ปรับระดับเสียงเบาหน่อยจะได้ไม่กลบเสียง Score
+                bgmNormal.volume = 0.4;
+                bgmExcited.volume = 0.5;
+
+                if(targetState === 'excited') {
+                    bgmNormal.pause();
+                    bgmExcited.currentTime = 0;
+                    bgmExcited.play().catch(e => console.log("Autoplay blocked"));
+                } else {
+                    bgmExcited.pause();
+                    if(musicState === 'none' || musicState === 'excited') {
+                        bgmNormal.play().catch(e => console.log("Autoplay blocked"));
+                    }
+                }
+                musicState = targetState;
+            }
+        }
+
         // --- RENDER FUNCTIONS ---
         function renderDisplay() {
             renderSidebarCards();
@@ -261,7 +319,6 @@
             const container = document.getElementById('team-grid-container');
             if (!container) return;
             
-            // สร้างโครง HTML ถ้ายังไม่มี
             if(container.children.length === 0) {
                 container.innerHTML = teams.map((t, i) => `
                     <div id="card-${i}" class="display-card flex-1 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border-l-8 ${t.border.replace('text','border')}">
@@ -282,7 +339,6 @@
                 `).join('');
             } 
             
-            // อัพเดตค่า
             teams.forEach((t, i) => {
                 const scoreEl = document.getElementById(`score-${i}`);
                 if(scoreEl) {
@@ -335,13 +391,13 @@
             if(!wrapper) return;
 
             if(wrapper.getElementsByClassName('racetrack').length === 0) {
-                 wrapper.insertAdjacentHTML('afterbegin', teams.map((t, i) => `
-                    <div class="racetrack relative h-12 bg-white rounded-full border-2 border-slate-200 overflow-hidden z-0 shadow-sm flex items-center">
+                 wrapper.innerHTML = teams.map((t, i) => `
+                    <div class="racetrack relative h-16 bg-white rounded-full border-2 border-slate-200 overflow-hidden z-0 shadow-sm flex items-center">
                         <div class="absolute inset-0 opacity-20 ${t.bg}"></div>
                         <div class="absolute inset-0 flex items-center justify-center"><div class="w-full border-b-2 border-dashed border-slate-300/50"></div></div>
                         <div id="snail-${i}" class="snail-racer" style="filter: ${t.snailGlow}"><span class="relative z-10 block">🐌</span></div>
                     </div>
-                `).join(''));
+                `).join('');
             }
             
             teams.forEach((t, i) => {
