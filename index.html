@@ -1,9 +1,116 @@
-<script type="module">
-        // เรียกใช้ Library จาก Google (ห้ามลบ 2 บรรทัดนี้)
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard System (Townhall 2026)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: { slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; color: #1e293b; }
+        .display-card {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .score-anim { transition: transform 0.2s; } .score-anim.pop { transform: scale(1.2); }
+        .progress-track { background-color: #f1f5f9; border-radius: 999px; overflow: hidden; }
+        .progress-bar { height: 100%; border-radius: 999px; transition: width 0.8s; position: relative; overflow: hidden; }
+        @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .medal-icon { animation: medalFloat 3s ease-in-out infinite; }
+        @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
+        .floating-score { position: absolute; font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.2s ease-out forwards; pointer-events: none; z-index: 50; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 1px white; right: 20px; top: 50%; }
+        .confetti-general { position: fixed; width: 12px; height: 12px; z-index: 100; animation: confettiFall 2.5s linear forwards; pointer-events: none; }
+        @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
+        #racetrack-wrapper { background: linear-gradient(to bottom, #f8fafc, #e2e8f0); box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+        .finish-line-tape { background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%); background-size: 16px 16px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); }
+        .snail-racer { position: absolute; left: 0; bottom: 4px; font-size: 2.2rem; transition: left 1s; z-index: 20; transform: scaleX(-1); filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1)); }
+        @keyframes happyBounce { 0%, 100% { transform: scaleX(-1) translateY(0) scaleY(1); } 50% { transform: scaleX(-1) translateY(-12px) scaleY(1.1); } }
+        .winner-snail { animation: happyBounce 0.8s ease-in-out infinite; }
+        .winner-badge-container { transform: scaleX(-1); position: absolute; top: -25px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; }
+        .winner-crown { font-size: 1.2rem; animation: medalFloat 2s infinite; }
+        .finished-text { font-size: 0.6rem; font-weight: 800; color: #fff; background-color: #22c55e; padding: 1px 4px; border-radius: 4px; white-space: nowrap; margin-top: -4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .confetti-finish { position: absolute; width: 8px; height: 8px; z-index: 30; border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none; }
+        @keyframes finishExplosion { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; } }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <audio id="sound-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+    <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+
+    <div id="mode-selector" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center space-y-8">
+        <h1 class="text-6xl font-bold text-slate-800">🏆 ระบบนับคะแนน Townhall</h1>
+        <div class="flex gap-8">
+            <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl w-80">
+                <div class="text-6xl mb-4">📺</div><div class="text-2xl font-bold">จอแสดงผล</div>
+            </button>
+            <button onclick="enterMode('admin')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl w-80">
+                <div class="text-6xl mb-4">🎛️</div><div class="text-2xl font-bold">จอกรรมการ</div>
+            </button>
+        </div>
+    </div>
+
+    <div id="display-view" class="hidden w-full h-full flex-row bg-slate-50 relative">
+        <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-3xl translate-y-1/2 translate-x-1/2"></div>
+        <main class="flex-1 p-6 flex flex-col z-10 h-full relative overflow-hidden gap-4">
+            <header class="text-left relative pl-4 flex-shrink-0">
+                <h1 id="display-title" class="text-5xl font-extrabold text-slate-800">Townhall 2026</h1>
+                <div class="h-2 w-32 bg-gradient-to-r from-blue-500 to-purple-500 mt-2 rounded-full"></div>
+                <div class="absolute top-0 right-0 pr-8">
+                     <span class="text-xl font-bold text-slate-400">TARGET: <span class="text-slate-700">1,500</span></span>
+                </div>
+            </header>
+            <div id="ranking-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar"></div>
+            <div id="mascot-race-area" class="flex-shrink-0 pt-2 border-t border-slate-200/50">
+                <div class="flex justify-between items-center mb-2 px-2">
+                    <h3 class="text-lg font-bold text-slate-700">🏁 Race to Victory!</h3>
+                </div>
+                <div id="racetrack-wrapper" class="flex flex-col gap-3 bg-slate-100/80 p-4 rounded-2xl relative overflow-hidden border border-slate-200 shadow-inner">
+                    <div class="finish-line-tape absolute right-4 top-0 bottom-0 w-6 h-full z-10 shadow-sm"></div>
+                    <div id="finish-line-confetti-container" class="absolute right-6 top-0 bottom-0 w-2 pointer-events-none z-30"></div>
+                </div>
+            </div>
+        </main>
+        <aside class="w-[380px] bg-white/70 backdrop-blur-xl border-l border-slate-200 p-5 flex flex-col shadow-2xl z-20 relative h-full overflow-y-auto custom-scrollbar">
+            <div class="mb-4 text-center sticky top-0 bg-white/0 backdrop-blur-md py-2 z-10">
+                <h2 class="text-xl font-bold text-slate-700 uppercase tracking-widest">⚡ Live Updates</h2>
+            </div>
+            <div id="team-grid-container" class="flex flex-col gap-4 pb-4"></div>
+        </aside>
+    </div>
+
+    <div id="admin-view" class="hidden h-full overflow-y-auto bg-slate-100">
+        <div class="max-w-5xl mx-auto p-8">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8 flex justify-between items-center sticky top-4 z-30">
+                <div><h1 class="text-2xl font-bold text-slate-800">⚙️ แผงควบคุม</h1></div>
+                <div class="flex gap-4">
+                     <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none w-64 font-medium transition-all" placeholder="Townhall 2026">
+                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all">🗑️ ล้างคะแนน</button>
+                </div>
+            </div>
+            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+    </div>
+
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 🔴🔴🔴 ค่า Config ของคุณ (ใส่ให้แล้วครับ) 🔴🔴🔴
+        // 🔴🔴🔴 ค่า Config ของคุณ (ใส่ให้แล้ว) 🔴🔴🔴
         const firebaseConfig = {
             apiKey: "AIzaSyB2ls46sUauR-lPttvahhww3BiHIBr5Gek",
             authDomain: "townhall-37c18.firebaseapp.com",
@@ -14,15 +121,14 @@
             appId: "1:728485322328:web:783c2aeb40cefee23f342d"
         };
 
-        // เริ่มต้นการทำงาน Firebase
+        // Initialize Firebase
         let app, db;
         try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
-            console.log("Firebase Connected: เชื่อมต่อสำเร็จ!");
+            console.log("Firebase Connected");
         } catch (e) {
-            console.error("Firebase Error:", e);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase ดูที่ Console");
+            console.error("Firebase Config Error:", e);
         }
 
         const TARGET_SCORE = 1500;
@@ -30,7 +136,6 @@
         let mainTitle = "Townhall 2026";
         let currentMode = '';
 
-        // ข้อมูลเริ่มต้น
         const defaultData = [
             { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.8))' },
             { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' },
@@ -38,7 +143,7 @@
             { id: 3, name: 'สีเหลือง', score: 0, count: 0, hasFinished: false, color: 'text-yellow-500', bg: 'bg-yellow-400', icon: '🟡', border: 'border-yellow-400', snailGlow: 'drop-shadow(0 0 8px rgba(234, 179, 8, 0.8))' }
         ];
 
-        // --- GLOBAL FUNCTIONS (ให้ HTML เรียกใช้ได้) ---
+        // --- GLOBAL FUNCTIONS ---
         window.enterMode = (mode) => {
             currentMode = mode;
             document.getElementById('mode-selector').classList.add('hidden');
@@ -53,14 +158,10 @@
 
         window.addScore = (index, val) => {
             if(!db) return;
-            // ต้องเช็คก่อนว่า teams มีข้อมูลไหม
             if (!teams || !teams[index]) return;
-
             let newScore = teams[index].score + val;
             if(newScore < 0) newScore = 0;
             if(newScore > TARGET_SCORE) newScore = TARGET_SCORE;
-            
-            // อัพเดตแค่คะแนนขึ้น Firebase
             update(ref(db, 'teams/' + index), {
                 score: newScore,
                 count: (teams[index].count || 0) + 1
@@ -90,38 +191,22 @@
         }
 
         // --- MAIN LOGIC ---
-        
-        // Listen to Firebase Realtime Database
         if(db) {
             const starCountRef = ref(db);
             onValue(starCountRef, (snapshot) => {
                 const data = snapshot.val();
-                
                 if (!data) {
-                    // ถ้า Database ว่างเปล่า ให้สร้างข้อมูลเริ่มต้น
                     set(ref(db), { teams: defaultData, title: "Townhall 2026" });
                 } else {
-                    // เช็คการเปลี่ยนแปลงเพื่อเล่นเสียง (เฉพาะโหมด Display)
                     if(currentMode === 'display' && teams.length > 0 && data.teams) {
                         data.teams.forEach((newT, i) => {
-                            // ป้องกัน error กรณีข้อมูลเก่าไม่ครบ
                             if (!teams[i]) return;
-
-                            // ถ้าคะแนนเพิ่ม -> เสียงติ๊ง
-                            if(newT.score > teams[i].score) {
-                                playSound('score');
-                            }
-                            // ถ้าเพิ่งเข้าเส้นชัย -> เสียงเฮ
-                            if(newT.hasFinished && !teams[i].hasFinished) {
-                                playSound('win');
-                            }
+                            if(newT.score > teams[i].score) playSound('score');
+                            if(newT.hasFinished && !teams[i].hasFinished) playSound('win');
                         });
                     }
-
                     teams = data.teams || defaultData;
                     mainTitle = data.title || "Townhall 2026";
-                    
-                    // อัพเดตหน้าจอ
                     updateUI();
                 }
             });
@@ -130,19 +215,15 @@
         function updateUI() {
             const titleEl = document.getElementById('display-title');
             const inputEl = document.getElementById('main-title-input');
-            
             if(titleEl) titleEl.innerText = mainTitle;
             if(inputEl && document.activeElement !== inputEl) inputEl.value = mainTitle;
-
             renderDisplay();
             renderAdmin();
         }
 
-        // Update Title to Firebase
         document.getElementById('main-title-input').addEventListener('input', (e) => {
             if(db) update(ref(db), { title: e.target.value });
         });
-
 
         // --- SOUND SYSTEM ---
         function playSound(type) {
@@ -155,12 +236,10 @@
             } catch(e) {}
         }
 
-
         // --- RENDERERS ---
         function renderDisplay() {
             if(document.getElementById('display-view').classList.contains('hidden')) return;
 
-            // Render Sidebar
             const gridContainer = document.getElementById('team-grid-container');
             if(gridContainer.children.length === 0) {
                  gridContainer.innerHTML = teams.map((t, i) => `
@@ -184,7 +263,6 @@
             } else {
                 updateSidebarValues();
             }
-
             renderRankingMain();  
             renderMascotRace();   
         }
@@ -223,7 +301,6 @@
                 teams.forEach((t, i) => {
                     const snailEl = document.getElementById(`snail-${i}`);
                     if(!snailEl) return;
-
                     const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
                     snailEl.style.left = `calc(${percent}% - 3.5rem)`; 
                     if (percent >= 100) {
@@ -232,7 +309,6 @@
                              snailEl.innerHTML = `<div class="winner-badge-container"><span class="winner-crown">👑</span><span class="finished-text">FINISHED!</span></div><span class="relative z-10 block">🐌</span>`;
                         }
                         if (!t.hasFinished) {
-                            // Update finished status to DB
                             update(ref(db, 'teams/' + i), { hasFinished: true });
                             triggerFinishLineCelebration(t.bg.replace('bg-', ''));
                         }
@@ -254,7 +330,6 @@
                 let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
                 if(rank > 3) rankDisplay = `<span class="text-4xl font-black text-slate-300">#${rank}</span>`;
                 else rankDisplay = `<div class="text-6xl mr-5 medal-icon drop-shadow-md">${rankDisplay}</div>`;
-                
                 let containerClass = rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-white border-yellow-300 h-44' : 'bg-white/90 border-slate-200 h-28';
                 
                 return `
@@ -343,3 +418,5 @@
             }
         }
     </script>
+</body>
+</html>
