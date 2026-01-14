@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard System (Townhall 2026 - Final Music)</title>
+    <title>Townhall 2026 Scoreboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -17,129 +17,143 @@
         }
     </script>
     <style>
-        body { background-color: #f8fafc; color: #1e293b; }
+        body { background-color: #f8fafc; color: #1e293b; overflow: hidden; }
         
-        /* การ์ดทีม */
+        /* Overlay สำหรับกดเริ่ม (แก้ปัญหาเสียงไม่ออก) */
+        #start-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.5s;
+        }
+        
         .display-card {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s;
         }
         
-        /* Animation */
-        .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .score-anim.pop { transform: scale(1.3); }
+        .score-anim { transition: transform 0.2s; display: inline-block; } 
+        .score-anim.pop { transform: scale(1.4); color: #f59e0b; }
 
-        /* Progress Bar */
-        .progress-track { background-color: #f1f5f9; border-radius: 999px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .progress-track { background-color: #e2e8f0; border-radius: 999px; overflow: hidden; }
         .progress-bar { height: 100%; border-radius: 999px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
-        .progress-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 2.5s infinite; }
+        .progress-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); transform: translateX(-100%); animation: shimmer 2s infinite; }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
 
         /* Floating Items */
-        @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .medal-icon { animation: medalFloat 3s ease-in-out infinite; }
+        @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .medal-icon { animation: medalFloat 3s ease-in-out infinite; display: inline-block; }
 
-        @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
-        .floating-score { position: absolute; font-size: 2.5rem; font-weight: 900; animation: floatUpFade 1.2s ease-out forwards; pointer-events: none; z-index: 50; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 1px white; right: 20px; top: 50%; }
+        .floating-score { position: absolute; font-size: 3rem; font-weight: 900; animation: floatUpFade 1s ease-out forwards; pointer-events: none; z-index: 50; text-shadow: 2px 2px 0px #fff; right: 20px; top: 50%; }
+        @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
 
         /* Confetti */
-        .confetti-general { position: fixed; width: 12px; height: 12px; z-index: 100; animation: confettiFall 2.5s linear forwards; pointer-events: none; }
-        @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-        .confetti-finish { position: absolute; width: 8px; height: 8px; z-index: 30; border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none; }
-        @keyframes finishExplosion { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; } }
+        .confetti-finish { position: absolute; width: 10px; height: 10px; z-index: 30; border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none; }
+        @keyframes finishExplosion { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; } }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-        /* Race Track (ปรับปรุงใหม่ให้สูงขึ้น) */
-        #racetrack-wrapper { background: linear-gradient(to bottom, #f8fafc, #e2e8f0); box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+        /* Race Track */
+        #racetrack-wrapper { background: linear-gradient(to bottom, #f1f5f9, #e2e8f0); box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
         .finish-line-tape { 
-            background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%);
-            background-size: 16px 16px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); 
+            background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+            background-size: 20px 20px; opacity: 0.8; border-left: 2px dashed rgba(255,255,255,0.5); 
         }
-        /* ปรับตำแหน่งหอยทากให้ต่ำลง และมีพื้นที่หัวมากขึ้น */
-        .snail-racer { position: absolute; left: 0; bottom: 2px; font-size: 2.2rem; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 20; transform: scaleX(-1); filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1)); }
+        /* ปรับหอยทากให้เห็นเต็มตัว */
+        .snail-racer { 
+            position: absolute; left: 0; 
+            bottom: 5px; /* ยกขึ้นจากขอบล่าง */
+            font-size: 2.5rem; /* ขยายขนาด */
+            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 20; 
+            transform: scaleX(-1); /* หันหน้าไปทางขวา */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); 
+        }
         
-        @keyframes happyBounce { 0%, 100% { transform: scaleX(-1) translateY(0) scaleY(1); } 50% { transform: scaleX(-1) translateY(-12px) scaleY(1.1); } }
-        .winner-snail { animation: happyBounce 0.8s ease-in-out infinite; }
-        
-        .winner-badge-container { transform: scaleX(-1); position: absolute; top: -25px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; }
-        .winner-crown { font-size: 1.2rem; animation: medalFloat 2s ease-in-out infinite; }
-        .finished-text { font-size: 0.6rem; font-weight: 800; color: #fff; background-color: #22c55e; padding: 1px 4px; border-radius: 4px; white-space: nowrap; margin-top: -4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        @keyframes happyBounce { 0%, 100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-15px); } }
+        .winner-snail { animation: happyBounce 0.6s ease-in-out infinite; }
+        .winner-crown { position: absolute; top: -20px; left: 10px; font-size: 1.5rem; animation: medalFloat 1s infinite; }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col">
+<body class="flex flex-col h-full">
 
-    <audio id="sound-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
-    <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-
-    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/904/904-preview.mp3"></audio> 
-    <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
-
-    <div id="mode-selector" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center space-y-8">
-        <div class="text-center space-y-2">
-            <h1 class="text-6xl font-bold text-slate-800 drop-shadow-sm">🏆 ระบบนับคะแนน Townhall 2026</h1>
-            <p class="text-slate-500">ระบบออนไลน์ + ดนตรีประกอบ</p>
-        </div>
-        <div class="flex gap-8">
-            <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
-                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">📺</div>
-                <div class="text-2xl font-bold text-slate-700">หน้าจอแสดงผล</div>
+    <div id="start-overlay">
+        <h1 class="text-6xl font-bold text-white mb-8">🏆 Townhall 2026</h1>
+        <div class="flex gap-6">
+            <button onclick="enterMode('display')" class="px-12 py-6 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-3xl font-bold shadow-lg transform hover:scale-105 transition-all">
+                📺 เปิดหน้าจอแสดงผล
             </button>
-            <button onclick="enterMode('admin')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
-                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
-                <div class="text-2xl font-bold text-slate-700">หน้าจอกรรมการ</div>
+            <button onclick="enterMode('admin')" class="px-12 py-6 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl text-3xl font-bold shadow-lg transform hover:scale-105 transition-all">
+                🎛️ เปิดหน้าจอกรรมการ
             </button>
         </div>
+        <p class="text-slate-400 mt-8 text-lg">⚠️ ต้องกดปุ่มนี้เพื่อให้เสียงทำงาน</p>
     </div>
 
-    <div id="display-view" class="hidden w-full h-full flex-row bg-slate-50 relative">
-        <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
-        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-3xl translate-y-1/2 translate-x-1/2"></div>
+    <audio id="sfx-score" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    
+    <audio id="bgm-normal" loop src="https://assets.mixkit.co/active_storage/stock_music/187/187-preview.mp3"></audio>
+    <audio id="bgm-excited" loop src="https://assets.mixkit.co/active_storage/stock_music/112/112-preview.mp3"></audio>
 
-        <main class="flex-1 p-6 flex flex-col z-10 h-full relative overflow-hidden gap-4">
-            <header class="text-left relative pl-4 flex-shrink-0">
-                <h1 id="display-title" class="text-5xl font-extrabold text-slate-800 tracking-tight">Townhall 2026</h1>
-                <div class="h-2 w-32 bg-gradient-to-r from-blue-500 to-purple-500 mt-2 rounded-full"></div>
-                <div class="absolute top-0 right-0 pr-8">
-                     <span class="text-xl font-bold text-slate-400">TARGET: <span class="text-slate-700">1,500</span></span>
+    <div id="display-view" class="hidden w-full h-screen flex-row bg-slate-50 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-100/50 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-yellow-100/50 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+
+        <main class="flex-1 p-8 flex flex-col z-10 h-full gap-6">
+            <header class="flex justify-between items-end">
+                <div>
+                    <h1 id="display-title" class="text-6xl font-extrabold text-slate-800 tracking-tight leading-none">Townhall 2026</h1>
+                    <div class="h-2 w-24 bg-gradient-to-r from-blue-500 to-purple-600 mt-3 rounded-full"></div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-slate-400 font-bold uppercase tracking-wider">Target Goal</div>
+                    <div class="text-4xl font-black text-slate-700">1,500</div>
                 </div>
             </header>
 
-            <div id="ranking-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar"></div>
+            <div id="ranking-list" class="flex-1 flex flex-col justify-start gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                </div>
 
-            <div id="mascot-race-area" class="flex-shrink-0 pt-2 border-t border-slate-200/50">
-                <div class="flex justify-between items-center mb-2 px-2">
-                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">🏁 Race to Victory! <span class="text-sm text-slate-400 font-normal">(ใครถึงก่อนชนะ)</span></h3>
+            <div class="mt-auto bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">🏁</span>
+                    <h3 class="text-xl font-bold text-slate-700">Race to Victory</h3>
                 </div>
-                <div id="racetrack-wrapper" class="flex flex-col gap-3 bg-slate-100/80 p-4 rounded-2xl relative overflow-hidden border border-slate-200 shadow-inner">
-                    <div class="finish-line-tape absolute right-4 top-0 bottom-0 w-6 h-full z-10 shadow-sm"></div>
-                    <div id="finish-line-confetti-container" class="absolute right-6 top-0 bottom-0 w-2 pointer-events-none z-30"></div>
-                </div>
+                <div id="racetrack-wrapper" class="flex flex-col gap-4 p-4 rounded-2xl relative">
+                    <div class="finish-line-tape absolute right-8 top-0 bottom-0 w-8 h-full z-10"></div>
+                    <div id="finish-confetti" class="absolute right-8 top-0 bottom-0 w-1"></div>
+                    </div>
             </div>
         </main>
 
-        <aside class="w-[380px] bg-white/70 backdrop-blur-xl border-l border-slate-200 p-5 flex flex-col shadow-2xl z-20 relative h-full overflow-y-auto custom-scrollbar">
-            <div class="mb-4 text-center sticky top-0 bg-white/0 backdrop-blur-md py-2 z-10">
-                <h2 class="text-xl font-bold text-slate-700 uppercase tracking-widest flex justify-center items-center gap-2">
-                    ⚡ Live Updates
-                </h2>
+        <aside class="w-[420px] bg-white/80 backdrop-blur-xl border-l border-slate-200 p-6 shadow-2xl z-20 flex flex-col">
+            <div class="mb-6 flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <h2 class="text-lg font-bold text-slate-500 uppercase tracking-widest">Live Updates</h2>
             </div>
-            <div id="team-grid-container" class="flex flex-col gap-4 pb-4"></div>
+            <div id="team-grid-container" class="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
+                </div>
         </aside>
     </div>
 
-    <div id="admin-view" class="hidden h-full overflow-y-auto bg-slate-100">
-        <div class="max-w-5xl mx-auto p-8">
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8 flex justify-between items-center sticky top-4 z-30">
-                <div><h1 class="text-2xl font-bold text-slate-800">⚙️ แผงควบคุม</h1></div>
-                <div class="flex gap-4">
-                     <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none w-64 font-medium transition-all" placeholder="Townhall 2026">
-                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all">🗑️ ล้างคะแนน</button>
+    <div id="admin-view" class="hidden w-full h-screen bg-slate-100 overflow-y-auto">
+        <div class="max-w-4xl mx-auto p-8">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-8 sticky top-4 z-30 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-slate-800">🎛️ แผงควบคุม</h1>
+                <div class="flex gap-3">
+                    <input type="text" id="main-title-input" class="bg-slate-50 border rounded-xl px-4 py-2 text-center" placeholder="ชื่อกิจกรรม">
+                    <button onclick="resetAllDefault()" class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-600 shadow-lg shadow-red-200 transition-all">
+                        ⚠️ ล้างค่าเป็นเริ่มใหม่ (ชื่อไทย)
+                    </button>
                 </div>
             </div>
-            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20"></div>
         </div>
     </div>
 
@@ -147,7 +161,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Config ของคุณ
+        // Config
         const firebaseConfig = {
             apiKey: "AIzaSyB2ls46sUauR-lPttvahhww3BiHIBr5Gek",
             authDomain: "townhall-37c18.firebaseapp.com",
@@ -158,45 +172,42 @@
             appId: "1:728485322328:web:783c2aeb40cefee23f342d"
         };
 
+        // เริ่มต้น Firebase
         let app, db;
-        
-        // ข้อมูลเริ่มต้น
-        const defaultData = [
-            { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.8))' },
-            { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))' },
-            { id: 2, name: 'สีเขียว', score: 0, count: 0, hasFinished: false, color: 'text-green-600', bg: 'bg-green-500', icon: '🟢', border: 'border-green-500', snailGlow: 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.8))' },
-            { id: 3, name: 'สีเหลือง', score: 0, count: 0, hasFinished: false, color: 'text-yellow-500', bg: 'bg-yellow-400', icon: '🟡', border: 'border-yellow-400', snailGlow: 'drop-shadow(0 0 8px rgba(234, 179, 8, 0.8))' }
-        ];
-
-        let teams = JSON.parse(JSON.stringify(defaultData)); 
-        let mainTitle = "Townhall 2026";
-        const TARGET_SCORE = 1500;
-        let currentMode = '';
-        let musicState = 'none'; // none, normal, excited
-
-        // --- เริ่มต้นระบบ ---
         try {
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
-            console.log("Firebase Connected");
-            startListeningToFirebase();
         } catch (e) {
-            console.error("Firebase Error:", e);
-            alert("เชื่อมต่อ Firebase ไม่ได้ แต่ระบบจะทำงานแบบ Offline ชั่วคราว");
+            console.error("Firebase Error", e);
         }
 
-        // --- GLOBAL FUNCTIONS ---
+        const TARGET_SCORE = 1500;
+        let mainTitle = "Townhall 2026";
+        let currentMode = '';
+        let currentBgmState = 'none'; // none, normal, excited
+
+        // ข้อมูลเริ่มต้น (ภาษาไทยตามที่ขอ)
+        const defaultData = [
+            { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))' },
+            { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 5px rgba(59, 130, 246, 0.6))' },
+            { id: 2, name: 'สีเขียว', score: 0, count: 0, hasFinished: false, color: 'text-green-600', bg: 'bg-green-500', icon: '🟢', border: 'border-green-500', snailGlow: 'drop-shadow(0 0 5px rgba(34, 197, 94, 0.6))' },
+            { id: 3, name: 'สีเหลือง', score: 0, count: 0, hasFinished: false, color: 'text-yellow-500', bg: 'bg-yellow-400', icon: '🟡', border: 'border-yellow-400', snailGlow: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.6))' }
+        ];
+
+        let teams = JSON.parse(JSON.stringify(defaultData));
+
+        // --- Global Functions ---
         window.enterMode = (mode) => {
             currentMode = mode;
-            document.getElementById('mode-selector').classList.add('hidden');
+            document.getElementById('start-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('start-overlay').classList.add('hidden'), 500);
+
             if(mode === 'display') {
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
-                
-                // เริ่มระบบวาดหน้าจอ + เล่นเสียง
-                renderDisplay(); 
                 playSound('click');
-                updateBackgroundMusic(teams); // เริ่มเล่นเพลงทันที
+                checkMusic(teams); // เริ่มเพลง
+                renderDisplay();   // วาดหน้าจอทันที
             } else {
                 document.getElementById('admin-view').classList.remove('hidden');
                 renderAdmin();
@@ -215,43 +226,32 @@
             playSound('click');
         }
 
-        window.updateName = (index, val) => {
-            if(!db) return;
-            update(ref(db, 'teams/' + index), { name: val });
-        }
-
-        window.resetTeam = (index) => {
-            if(confirm('รีเซ็ตทีมนี้?')) {
-                update(ref(db, 'teams/' + index), { score: 0, count: 0, hasFinished: false });
-            }
-        }
-
-        window.resetAll = () => {
-            if(confirm('ยืนยันล้างทั้งหมด?')) {
+        window.resetAllDefault = () => {
+            if(confirm('⚠️ จะล้างค่าทั้งหมดและเปลี่ยนชื่อเป็น สีแดง/น้ำเงิน/เขียว/เหลือง ยืนยันไหม?')) {
                 const updates = {};
                 defaultData.forEach((t, i) => { updates['teams/' + i] = t; });
+                updates['title'] = "Townhall 2026";
                 update(ref(db), updates);
             }
         }
 
-        // --- FIREBASE LOGIC ---
-        function startListeningToFirebase() {
-            const starCountRef = ref(db);
-            onValue(starCountRef, (snapshot) => {
+        window.updateName = (index, val) => { if(db) update(ref(db, 'teams/' + index), { name: val }); }
+        window.resetTeam = (index) => { if(db && confirm('รีเซ็ตทีมนี้?')) update(ref(db, 'teams/' + index), { score: 0, count: 0, hasFinished: false }); }
+
+        // --- Logic ---
+        if(db) {
+            onValue(ref(db), (snapshot) => {
                 const data = snapshot.val();
-                if (!data) {
+                if(!data) {
                     set(ref(db), { teams: defaultData, title: "Townhall 2026" });
                 } else {
-                    // Logic สำหรับหน้าจอ Display
                     if(currentMode === 'display' && data.teams) {
                         data.teams.forEach((newT, i) => {
                             if(teams[i] && newT.score > teams[i].score) playSound('score');
                             if(teams[i] && newT.hasFinished && !teams[i].hasFinished) playSound('win');
                         });
-                        // เช็คและเปลี่ยนเพลงตามคะแนน
-                        updateBackgroundMusic(data.teams);
+                        checkMusic(data.teams);
                     }
-                    // Update Data
                     teams = data.teams || defaultData;
                     mainTitle = data.title || "Townhall 2026";
                     updateUI();
@@ -261,166 +261,133 @@
 
         function updateUI() {
             const titleEl = document.getElementById('display-title');
-            const inputEl = document.getElementById('main-title-input');
             if(titleEl) titleEl.innerText = mainTitle;
+            const inputEl = document.getElementById('main-title-input');
             if(inputEl && document.activeElement !== inputEl) inputEl.value = mainTitle;
-            
+
             if(currentMode === 'display') renderDisplay();
             if(currentMode === 'admin') renderAdmin();
         }
 
-        document.getElementById('main-title-input').addEventListener('input', (e) => {
-            if(db) update(ref(db), { title: e.target.value });
-        });
-
-        // --- MUSIC LOGIC ---
-        function updateBackgroundMusic(teamData) {
+        // --- Music Logic ---
+        function checkMusic(teamData) {
             if(currentMode !== 'display') return;
+            
+            // ถ้าคะแนนสูงสุด >= 700 ให้เล่นเพลงตื่นเต้น
+            let maxScore = Math.max(...teamData.map(t => t.score));
+            let targetState = maxScore >= 700 ? 'excited' : 'normal';
 
-            // หาคะแนนสูงสุด
-            let maxScore = 0;
-            teamData.forEach(t => {
-                if(t.score > maxScore) maxScore = t.score;
-            });
-
-            // ตรวจสอบเงื่อนไข: ถ้าคะแนน >= 700 ให้เล่นเพลงตื่นเต้น
-            const targetState = maxScore >= 700 ? 'excited' : 'normal';
-
-            if(musicState !== targetState) {
+            if(currentBgmState !== targetState) {
                 const bgmNormal = document.getElementById('bgm-normal');
                 const bgmExcited = document.getElementById('bgm-excited');
-
-                // ปรับระดับเสียงเบาหน่อยจะได้ไม่กลบเสียง Score
-                bgmNormal.volume = 0.4;
-                bgmExcited.volume = 0.5;
+                
+                bgmNormal.volume = 0.2; // เพลงปกติเบาๆ
+                bgmExcited.volume = 0.3; // เพลงตื่นเต้นดังหน่อย
 
                 if(targetState === 'excited') {
                     bgmNormal.pause();
                     bgmExcited.currentTime = 0;
-                    bgmExcited.play().catch(e => console.log("Autoplay blocked"));
+                    bgmExcited.play().catch(()=>{});
                 } else {
                     bgmExcited.pause();
-                    if(musicState === 'none' || musicState === 'excited') {
-                        bgmNormal.play().catch(e => console.log("Autoplay blocked"));
-                    }
+                    bgmNormal.play().catch(()=>{});
                 }
-                musicState = targetState;
+                currentBgmState = targetState;
             }
         }
 
-        // --- RENDER FUNCTIONS ---
+        // --- Renderers ---
         function renderDisplay() {
-            renderSidebarCards();
-            renderRankingMain();
-            renderMascotRace();
-        }
-
-        function renderSidebarCards() {
-            const container = document.getElementById('team-grid-container');
-            if (!container) return;
-            
-            if(container.children.length === 0) {
-                container.innerHTML = teams.map((t, i) => `
-                    <div id="card-${i}" class="display-card flex-1 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border-l-8 ${t.border.replace('text','border')}">
-                        <div class="flex items-center gap-4 z-10 pl-2">
-                             <div class="text-4xl filter drop-shadow-sm">${t.icon}</div>
-                             <div>
-                                <h2 class="text-2xl font-bold text-slate-700 leading-tight">${t.name}</h2>
-                                <div class="text-sm text-slate-400 mt-1 font-medium">Updates: ${t.count}</div>
-                             </div>
+            // 1. Sidebar Cards
+            const grid = document.getElementById('team-grid-container');
+            if(grid) {
+                if(grid.children.length === 0) {
+                    grid.innerHTML = teams.map((t, i) => `
+                        <div id="card-${i}" class="display-card rounded-2xl p-4 flex items-center justify-between border-l-8 ${t.border.replace('text','border')} relative overflow-hidden">
+                            <div class="flex items-center gap-4 z-10">
+                                <div class="text-4xl filter drop-shadow-sm">${t.icon}</div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-700">${t.name}</h2>
+                                    <div class="text-sm text-slate-400">Updates: ${t.count}</div>
+                                </div>
+                            </div>
+                            <div class="z-10"><div id="score-${i}" class="text-6xl font-black ${t.color} score-anim">${t.score}</div></div>
+                            <div class="absolute bottom-0 left-0 w-full h-1.5 bg-slate-100"><div id="prog-${i}" class="h-full ${t.bg} opacity-50" style="width:0%"></div></div>
                         </div>
-                        <div class="z-10 text-right pr-2">
-                            <div id="score-${i}" class="text-6xl font-black leading-none ${t.color} score-anim drop-shadow-sm">${t.score}</div>
-                        </div>
-                        <div class="absolute bottom-0 left-0 w-full h-1.5 bg-slate-100">
-                             <div id="mini-progress-${i}" class="h-full ${t.bg} opacity-60" style="width: 0%"></div>
-                        </div>
-                    </div>
-                `).join('');
-            } 
-            
-            teams.forEach((t, i) => {
-                const scoreEl = document.getElementById(`score-${i}`);
-                if(scoreEl) {
-                    const oldScore = parseInt(scoreEl.innerText);
-                    if(oldScore !== t.score) {
-                        scoreEl.innerText = t.score;
-                        scoreEl.classList.remove('pop'); void scoreEl.offsetWidth; scoreEl.classList.add('pop');
-                        if(t.score > oldScore) showFloatingText(i, t.score - oldScore);
-                        const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                        document.getElementById(`mini-progress-${i}`).style.width = `${percent}%`;
-                    }
+                    `).join('');
                 }
-            });
-        }
-
-        function renderRankingMain() {
-            const container = document.getElementById('ranking-list');
-            if(!container) return;
-            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
-            
-            container.innerHTML = sortedTeams.map((t, index) => {
-                const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                const rank = index + 1;
-                let rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                let containerClass = rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-white border-yellow-300 h-44' : 
-                                     rank === 2 ? 'bg-gradient-to-r from-slate-50 to-white border-slate-300 h-36' :
-                                     rank === 3 ? 'bg-gradient-to-r from-orange-50 to-white border-orange-300 h-36' : 'bg-white/90 border-slate-200 h-28';
-                
-                if (rank > 3) rankDisplay = `<div class="text-4xl font-black text-slate-300 mr-6 w-14 text-center">#${rank}</div>`;
-                else rankDisplay = `<div class="text-6xl mr-5 medal-icon drop-shadow-md">${rankDisplay}</div>`;
-
-                return `
-                <div class="w-full ${containerClass} backdrop-blur-md rounded-[2rem] border-2 shadow-sm px-8 py-4 flex items-center justify-between transition-all duration-500 relative overflow-hidden">
-                    <div class="flex items-center z-10">
-                        ${rankDisplay}
-                        <div><div class="flex items-center gap-4"><span class="text-5xl filter drop-shadow-sm">${t.icon}</span><span class="font-extrabold text-slate-700 text-4xl tracking-tight">${t.name}</span></div></div>
-                    </div>
-                    <div class="flex flex-col items-end justify-center z-10 w-1/2 h-full">
-                        <span class="font-black ${t.color} text-6xl mb-2 leading-none filter drop-shadow-sm">${t.score}</span>
-                        <div class="progress-track h-5 w-full bg-slate-200/50 rounded-full overflow-hidden border border-slate-300/50">
-                             <div class="progress-bar ${t.bg} h-full rounded-full shadow-sm" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderMascotRace() {
-            const wrapper = document.getElementById('racetrack-wrapper');
-            if(!wrapper) return;
-
-            if(wrapper.getElementsByClassName('racetrack').length === 0) {
-                 wrapper.innerHTML = teams.map((t, i) => `
-                    <div class="racetrack relative h-16 bg-white rounded-full border-2 border-slate-200 overflow-hidden z-0 shadow-sm flex items-center">
-                        <div class="absolute inset-0 opacity-20 ${t.bg}"></div>
-                        <div class="absolute inset-0 flex items-center justify-center"><div class="w-full border-b-2 border-dashed border-slate-300/50"></div></div>
-                        <div id="snail-${i}" class="snail-racer" style="filter: ${t.snailGlow}"><span class="relative z-10 block">🐌</span></div>
-                    </div>
-                `).join('');
+                teams.forEach((t, i) => {
+                    const el = document.getElementById(`score-${i}`);
+                    if(el) {
+                        const old = parseInt(el.innerText);
+                        if(old !== t.score) {
+                            el.innerText = t.score;
+                            el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+                            if(t.score > old) showFloatingText(i, t.score - old);
+                            document.getElementById(`prog-${i}`).style.width = `${Math.min(100, (t.score/TARGET_SCORE)*100)}%`;
+                        }
+                    }
+                });
             }
-            
-            teams.forEach((t, i) => {
-                const snailEl = document.getElementById(`snail-${i}`);
-                if(snailEl) {
-                    const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                    snailEl.style.left = `calc(${percent}% - 3.5rem)`;
-                    if (percent >= 100) {
-                        if (!snailEl.classList.contains('winner-snail')) {
-                             snailEl.classList.add('winner-snail');
-                             snailEl.innerHTML = `<div class="winner-badge-container"><span class="winner-crown">👑</span><span class="finished-text">FINISHED!</span></div><span class="relative z-10 block">🐌</span>`;
-                        }
-                        if(!t.hasFinished && db) {
-                            update(ref(db, 'teams/' + i), { hasFinished: true });
-                            triggerFinishLineCelebration(t.bg.replace('bg-', ''));
-                        }
-                    } else {
-                        snailEl.classList.remove('winner-snail');
-                        snailEl.innerHTML = '<span class="relative z-10 block">🐌</span>';
-                        if(t.hasFinished && db) update(ref(db, 'teams/' + i), { hasFinished: false });
-                    }
+
+            // 2. Rankings
+            const rankContainer = document.getElementById('ranking-list');
+            if(rankContainer) {
+                const sorted = [...teams].sort((a,b) => b.score - a.score);
+                rankContainer.innerHTML = sorted.map((t, idx) => {
+                    let rankHTML = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<span class="text-slate-300">#${idx+1}</span>`;
+                    let bgClass = idx === 0 ? 'bg-gradient-to-r from-yellow-50 to-white border-yellow-300' : 'bg-white/80 border-slate-200';
+                    if(idx === 0) rankHTML = '<span class="text-6xl drop-shadow-md">🥇</span>'; // ทองใหญ่พิเศษ
+                    
+                    return `
+                    <div class="w-full ${bgClass} rounded-2xl border p-4 flex items-center justify-between transition-all shadow-sm">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 text-center font-bold text-4xl">${rankHTML}</div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl filter drop-shadow-md">${t.icon}</div>
+                                <div class="text-3xl font-bold text-slate-700">${t.name}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end w-1/3">
+                            <div class="text-5xl font-black ${t.color}">${t.score}</div>
+                            <div class="w-full h-3 bg-slate-100 rounded-full mt-2 overflow-hidden"><div class="h-full ${t.bg}" style="width:${Math.min(100, (t.score/TARGET_SCORE)*100)}%"></div></div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // 3. Race
+            const raceWrapper = document.getElementById('racetrack-wrapper');
+            if(raceWrapper) {
+                if(raceWrapper.getElementsByClassName('racetrack').length === 0) {
+                    raceWrapper.insertAdjacentHTML('afterbegin', teams.map((t, i) => `
+                        <div class="racetrack relative h-16 bg-white rounded-full border-2 border-slate-200 overflow-hidden shadow-sm flex items-center mb-2">
+                            <div class="absolute inset-0 opacity-10 ${t.bg}"></div>
+                            <div class="absolute inset-0 flex items-center justify-center"><div class="w-full border-b-2 border-dashed border-slate-300"></div></div>
+                            <div id="snail-${i}" class="snail-racer" style="filter: ${t.snailGlow}"><span class="relative z-10 block">🐌</span></div>
+                        </div>
+                    `).join(''));
                 }
-            });
+                teams.forEach((t, i) => {
+                    const el = document.getElementById(`snail-${i}`);
+                    if(el) {
+                        const pct = Math.min(100, (t.score/TARGET_SCORE)*100);
+                        el.style.left = `calc(${pct}% - 3.5rem)`; // ลบขนาดตัวออกเพื่อให้หยุดพอดี
+                        if(pct >= 100) {
+                            if(!el.innerHTML.includes('👑')) el.innerHTML = `<span class="winner-crown">👑</span><span class="relative z-10 block">🐌</span>`;
+                            el.classList.add('winner-snail');
+                            if(!t.hasFinished && db) {
+                                update(ref(db, 'teams/' + i), { hasFinished: true });
+                                fireConfetti(t.bg.replace('bg-',''));
+                            }
+                        } else {
+                            el.innerHTML = '<span class="relative z-10 block">🐌</span>';
+                            el.classList.remove('winner-snail');
+                            if(t.hasFinished && db) update(ref(db, 'teams/' + i), { hasFinished: false });
+                        }
+                    }
+                });
+            }
         }
 
         function renderAdmin() {
@@ -428,31 +395,27 @@
             if(container) {
                 container.innerHTML = teams.map((t, i) => `
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 border-l-8 ${t.border.replace('text','border')}">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="text-4xl bg-slate-50 p-3 rounded-2xl">${t.icon}</div>
-                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none flex-1">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="text-4xl">${t.icon}</div>
+                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-2xl font-bold bg-transparent border-b outline-none flex-1">
                         </div>
-                        <div class="flex justify-between items-end mb-6">
-                            <div><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div><div class="text-5xl font-extrabold ${t.color}">${t.score}</div></div>
-                            <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div class="text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
+                        <div class="text-5xl font-black ${t.color} text-right mb-4">${t.score}</div>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <button onclick="addScore(${i}, 100)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+100</button>
+                            <button onclick="addScore(${i}, 200)" class="py-3 bg-slate-50 hover:bg-green-100 rounded-xl font-bold border">+200</button>
+                            <button onclick="addScore(${i}, 300)" class="py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold shadow">+300</button>
                         </div>
-                        <div class="grid grid-cols-3 gap-3 mb-4">
-                            <button onclick="addScore(${i}, 100)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 font-bold border border-slate-200">+100</button>
-                            <button onclick="addScore(${i}, 200)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 font-bold border border-slate-200">+200</button>
-                            <button onclick="addScore(${i}, 300)" class="py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200">+300</button>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="addScore(${i}, -100)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-100</button>
+                            <button onclick="addScore(${i}, -200)" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">-200</button>
+                            <button onclick="resetTeam(${i})" class="py-2 text-slate-400 hover:text-red-500 rounded-xl border text-sm">Reset</button>
                         </div>
-                        <div class="grid grid-cols-3 gap-3 mb-4">
-                            <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-200">-100</button>
-                            <button onclick="addScore(${i}, -200)" class="py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-200">-200</button>
-                            <button onclick="addScore(${i}, -300)" class="py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-200">-300</button>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium">🔄 รีเซ็ตทีมนี้</button></div>
                     </div>
                 `).join('');
             }
         }
 
-        // --- HELPERS ---
+        // --- FX ---
         function showFloatingText(index, diff) {
             const card = document.getElementById(`card-${index}`);
             if(card) {
@@ -461,51 +424,28 @@
                 el.innerText = '+' + diff;
                 card.appendChild(el);
                 setTimeout(() => el.remove(), 1000);
-                if(diff >= 300) createGlobalConfetti();
             }
         }
 
-        function triggerFinishLineCelebration(colorName) {
-            const container = document.getElementById('finish-line-confetti-container');
-            if(container) {
-                const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308' };
-                for(let i=0; i<30; i++) {
-                    const el = document.createElement('div');
-                    el.className = 'confetti-finish';
-                    el.style.backgroundColor = colorsMap[colorName] || '#ffd700';
-                    el.style.top = Math.random() * 100 + '%';
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 50 + Math.random() * 100;
-                    el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
-                    el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-                    container.appendChild(el);
-                    setTimeout(() => el.remove(), 1500);
-                }
-                createGlobalConfetti();
-            }
-        }
-
-        function createGlobalConfetti() {
-            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308'];
-            for(let i=0; i<50; i++) {
+        function fireConfetti(colorName) {
+            const container = document.getElementById('finish-confetti');
+            const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308' };
+            const hex = colorsMap[colorName] || '#000';
+            for(let i=0; i<40; i++) {
                 const el = document.createElement('div');
-                el.className = 'confetti-general';
-                el.style.left = Math.random()*100 + 'vw';
-                el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-                el.style.animationDelay = Math.random() + 's';
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 2500);
+                el.className = 'confetti-finish';
+                el.style.backgroundColor = hex;
+                el.style.top = Math.random()*100+'%';
+                el.style.setProperty('--tx', (Math.random()*100+50)+'px');
+                el.style.setProperty('--ty', (Math.random()*100-50)+'px');
+                container.appendChild(el);
+                setTimeout(()=>el.remove(), 1500);
             }
         }
 
         function playSound(type) {
-            try {
-                const audio = document.getElementById(`sound-${type}`);
-                if(audio) {
-                    audio.currentTime = 0;
-                    audio.play().catch(e => {});
-                }
-            } catch(e) {}
+            const audio = document.getElementById(type === 'score' ? 'sfx-score' : type === 'win' ? 'sfx-win' : 'sfx-click');
+            if(audio) { audio.currentTime=0; audio.play().catch(()=>{}); }
         }
     </script>
 </body>
