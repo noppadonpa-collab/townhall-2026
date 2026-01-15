@@ -45,6 +45,11 @@
             position: relative;
         }
         
+        /* ปรับขนาดให้พอดีหน้าจอ */
+        #display-view {
+            height: 133.33vh; /* 100vh / 0.75 = 133.33vh เพื่อให้พอดีหลังย่อ */
+        }
+        
         /* พื้นหลังที่มีสีสัน */
         .bg-decoration {
             position: absolute;
@@ -232,7 +237,7 @@
         </div>
     </div>
 
-    <div id="display-view" class="hidden w-full h-full relative justify-center">
+    <div id="display-view" class="hidden w-full h-full relative justify-center" style="transform: scale(0.75); transform-origin: top center;">
         <main class="w-full max-w-[1400px] p-8 flex flex-col z-10 h-full relative overflow-hidden gap-2 mx-auto">
             <header class="text-left relative pl-2 flex-shrink-0 flex justify-between items-end mb-4">
                 <div>
@@ -275,7 +280,7 @@
             { name: '🟡 สีเหลือง', color: 'text-yellow-500', bg: 'bg-yellow-400', border: 'border-yellow-400', glow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' },
             { name: '🟣 สีม่วง', color: 'text-purple-500', bg: 'bg-purple-500', border: 'border-purple-500', glow: 'drop-shadow(0 0 10px rgba(168, 85, 247, 1))' },
             { name: '🩷 สีชมพู', color: 'text-pink-500', bg: 'bg-pink-500', border: 'border-pink-500', glow: 'drop-shadow(0 0 10px rgba(236, 72, 153, 1))' },
-            { name: '🟠 สีส้ม', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
+            { name: '🟠 สีส้म', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
             { name: '🩵 สีฟ้า', color: 'text-teal-500', bg: 'bg-teal-500', border: 'border-teal-500', glow: 'drop-shadow(0 0 10px rgba(20, 184, 166, 1))' }
         ];
         
