@@ -202,11 +202,12 @@
 
     <audio id="sfx-score" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
     
+    <audio id="sfx-display-hit" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
+
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
     
     <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/OST%20Stardust%20Crusaders%20World%20Track%2019%20-%20Travelers%20Who%20Rest.mp3"></audio>
-    
     <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3"></audio>
 
     <div id="bg-decorations"></div>
@@ -283,18 +284,22 @@
         ];
 
         let teams = defaultData;
+        let previousScores = {}; 
         let mainTitle = "Townhall 2026";
         let currentMode = '';
         let currentMusicState = 'none';
         let isFirebaseReady = false;
 
+        // Audio Refs
         const sfxScore = document.getElementById('sfx-score');
+        const sfxDisplayHit = document.getElementById('sfx-display-hit'); // เสียง Ora Ora สำหรับจอ Display
         const sfxWin = document.getElementById('sfx-win');
         const sfxClick = document.getElementById('sfx-click');
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
-        sfxScore.volume = 0.5; sfxWin.volume = 0.5; sfxClick.volume = 0.3; bgmNormal.volume = 0.4; bgmExcited.volume = 0.5;
+        sfxScore.volume = 0.5; sfxDisplayHit.volume = 0.6; sfxWin.volume = 0.5; 
+        sfxClick.volume = 0.3; bgmNormal.volume = 0.4; bgmExcited.volume = 0.5;
 
         function waitForFirebase() {
             return new Promise((resolve) => {
@@ -316,6 +321,23 @@
             window.firebaseOnValue(teamsRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    // Logic เช็คคะแนนเพิ่มเพื่อเล่นเสียงที่หน้าจอ Display
+                    if (currentMode === 'display') {
+                        let hasScoreIncreased = false;
+                        data.forEach((t, i) => {
+                            const prevScore = previousScores[i] || 0;
+                            if (t.score > prevScore) {
+                                hasScoreIncreased = true;
+                            }
+                        });
+                        
+                        if (hasScoreIncreased) {
+                            playSound('display_hit'); // เล่นเสียง ORA ORA
+                        }
+                        
+                        previousScores = data.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
+                    }
+
                     teams = data;
                     renderDisplay();
                     renderAdmin();
@@ -339,9 +361,17 @@
         }
 
         function playSound(type) {
-            const audioMap = { 'score': sfxScore, 'win': sfxWin, 'click': sfxClick };
+            const audioMap = { 
+                'score': sfxScore,        // Admin click (ORA)
+                'display_hit': sfxDisplayHit, // Display update (ORA)
+                'win': sfxWin, 
+                'click': sfxClick 
+            };
             const audio = audioMap[type];
-            if(audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+            if(audio) { 
+                audio.currentTime = 0; 
+                audio.play().catch(() => {}); 
+            }
         }
 
         function checkAndUpdateMusic() {
@@ -357,7 +387,7 @@
 
         function createBackgroundDecoration() {
             const container = document.getElementById('bg-decorations');
-            
+            container.innerHTML = '';
             for(let i = 0; i < 30; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -368,31 +398,23 @@
                 star.style.animationDelay = Math.random() * 3 + 's';
                 container.appendChild(star);
             }
-            
-            setInterval(() => {
-                if(currentMode === 'display') {
-                    createFirework();
-                }
-            }, 3000);
+            setInterval(() => { if(currentMode === 'display') createFirework(); }, 3000);
         }
 
         function createFirework() {
             const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ee5a6f', '#c44569'];
             const x = Math.random() * window.innerWidth;
             const y = Math.random() * (window.innerHeight * 0.6);
-            
             for(let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'firework-particle';
                 particle.style.left = x + 'px';
                 particle.style.top = y + 'px';
                 particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
                 const angle = (Math.PI * 2 * i) / 20;
                 const distance = 50 + Math.random() * 100;
                 particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-                
                 document.body.appendChild(particle);
                 setTimeout(() => particle.remove(), 1500);
             }
@@ -429,12 +451,9 @@
             container.innerHTML = sortedTeams.map((t, rankIndex) => {
                 const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
                 const rank = rankIndex + 1;
-                
                 let rankDisplay = '';
                 let containerClass = 'bg-white/95 border-slate-200 backdrop-blur-sm';
-                const scoreSize = 'text-7xl'; 
-                const iconSize = 'text-6xl'; 
-                const nameSize = 'text-4xl';
+                const scoreSize = 'text-7xl'; const iconSize = 'text-6xl'; const nameSize = 'text-4xl';
 
                 if(rank === 1) {
                     rankDisplay = `<div class="text-8xl mr-6 medal-icon drop-shadow-lg">🥇</div>`;
@@ -453,7 +472,6 @@
 
                 return `
                 <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[3rem] border-[3px] shadow-2xl px-10 py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
-                    
                     <div class="flex items-center z-10" style="width: 35%;">
                         ${rankDisplay}
                         <div class="flex items-center gap-5">
@@ -461,27 +479,19 @@
                             <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm">${t.name}</span>
                         </div>
                     </div>
-
                     <div class="flex flex-col justify-center z-10 h-full relative score-section" style="width: 60%;">
-                        
                         <div class="text-right mb-2" style="padding-right: 80px;">
                             <span id="score-text-${t.id}" class="font-black ${t.color} ${scoreSize} leading-none filter drop-shadow-lg score-anim block">${t.score}</span>
                         </div>
-
                         <div class="progress-container-custom">
                             <div class="absolute inset-0 bg-slate-200/50 rounded-full"></div>
-                            
                             <div class="finish-tape-in-bar"></div>
-
                             <div id="progress-fill-${t.id}" class="progress-fill-custom ${t.bg}" style="width: ${percent}%"></div>
-
                             <div id="mascot-runner-${t.id}" class="mascot-on-bar" style="left: ${mascotLeft}; filter: ${t.glow}">
                                 <span class="relative block">${t.icon}</span>
                             </div>
-                            
                             <div id="confetti-point-${t.id}" class="absolute top-0 bottom-0 right-2 w-1 pointer-events-none"></div>
                         </div>
-
                     </div>
                 </div>`;
             }).join('');
@@ -496,14 +506,8 @@
                     if (percent >= 100) {
                         if (!mascotEl.classList.contains('winner-mascot')) {
                              mascotEl.classList.add('winner-mascot');
-                             mascotEl.innerHTML = `
-                                <div class="winner-badge-mini">
-                                    <span class="winner-crown-mini">👑</span>
-                                </div>
-                                <span class="relative block">${t.icon}</span>
-                             `;
+                             mascotEl.innerHTML = `<div class="winner-badge-mini"><span class="winner-crown-mini">👑</span></div><span class="relative block">${t.icon}</span>`;
                         }
-                        
                         if (!t.hasFinished) {
                             t.hasFinished = true;
                             saveToFirebase();
@@ -515,7 +519,6 @@
                         mascotEl.innerHTML = `<span class="relative block">${t.icon}</span>`;
                         if(t.hasFinished) { t.hasFinished = false; saveToFirebase(); }
                     }
-
                     scoreEl.classList.remove('pop');
                     void scoreEl.offsetWidth;
                     scoreEl.classList.add('pop');
@@ -525,26 +528,17 @@
 
         function triggerMiniConfetti(element, colorName) {
             if(!element) return;
-            const colorsMap = { 
-                'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 
-                'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899',
-                'orange-500': '#f97316', 'teal-500': '#14b8a6'
-            };
+            const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899', 'orange-500': '#f97316', 'teal-500': '#14b8a6' };
             const colorHex = colorsMap[colorName] || '#ffd700';
-
             for(let i=0; i<20; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-finish';
                 el.style.backgroundColor = colorHex;
-                el.style.top = '50%';
-                el.style.left = '50%';
-                
+                el.style.top = '50%'; el.style.left = '50%';
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 40 + Math.random() * 60;
-                
                 el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-                
                 element.appendChild(el);
                 setTimeout(() => el.remove(), 1500);
             }
@@ -560,8 +554,7 @@
                     <div class="flex items-center gap-4 mb-6">
                         <div class="text-5xl bg-slate-50 p-4 rounded-2xl">${t.icon}</div>
                         <div class="flex-1">
-                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)"
-                                class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
+                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
                             <div class="flex gap-2 flex-wrap">
                                 <select onchange="updateColor(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
                                     <option value="${i}">เปลี่ยนสี</option>
@@ -575,16 +568,8 @@
                         </div>
                     </div>
                     <div class="flex justify-between items-end mb-6">
-                        <div>
-                            <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div>
-                            <div class="text-6xl font-extrabold ${t.color}">${t.score}</div>
-                        </div>
-                         <div class="text-right">
-                             <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div>
-                             <div class="text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">
-                                ${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}
-                             </div>
-                        </div>
+                        <div><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div><div class="text-6xl font-extrabold ${t.color}">${t.score}</div></div>
+                         <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div class="text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
                     </div>
                     <div class="grid grid-cols-3 gap-3 mb-4">
                         <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+100</button>
@@ -596,9 +581,7 @@
                         <button onclick="addScore(${i}, -200)" class="py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200">-200</button>
                         <button onclick="addScore(${i}, -300)" class="py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200">-300</button>
                     </div>
-                    <div class="pt-4 border-t border-slate-100">
-                        <button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button>
-                    </div>
+                    <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
                 </div>
             `).join('');
         }
@@ -622,54 +605,16 @@
                     setTimeout(() => el.remove(), 1500);
                 }
             }
-
             saveToFirebase();
             renderAdmin(); 
             renderDisplay();
         }
 
-        function updateName(index, val) {
-            teams[index].name = val;
-            saveToFirebase();
-            renderDisplay();
-        }
-
-        function updateColor(index, colorIdx) {
-            if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) {
-                teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] };
-                saveToFirebase();
-                renderAdmin();
-                renderDisplay();
-            }
-        }
-
-        function updateAnimal(index, animal) {
-            teams[index].icon = animal;
-            saveToFirebase();
-            renderAdmin();
-            renderDisplay();
-        }
-
-        function resetTeam(index) {
-            if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) {
-                teams[index].score = 0; 
-                teams[index].count = 0; 
-                teams[index].hasFinished = false;
-                saveToFirebase(); 
-                renderAdmin(); 
-                renderDisplay();
-            }
-        }
-
-        function resetAll() {
-            if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) {
-                teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; });
-                saveToFirebase(); 
-                renderAdmin(); 
-                renderDisplay();
-            }
-        }
-
+        function updateName(index, val) { teams[index].name = val; saveToFirebase(); renderDisplay(); }
+        function updateColor(index, colorIdx) { if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; saveToFirebase(); renderAdmin(); renderDisplay(); } }
+        function updateAnimal(index, animal) { teams[index].icon = animal; saveToFirebase(); renderAdmin(); renderDisplay(); }
+        function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
+        function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function createGlobalConfetti() {
             const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899'];
             for(let i=0; i<50; i++) {
@@ -691,7 +636,6 @@
             }
         }
 
-        // เพิ่ม animation fall
         const style = document.createElement('style');
         style.textContent = `
             @keyframes fall {
