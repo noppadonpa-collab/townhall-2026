@@ -45,12 +45,10 @@
             position: relative;
         }
         
-        /* ปรับขนาดให้พอดีหน้าจอ */
         #display-view {
-            height: 133.33vh; /* 100vh / 0.75 = 133.33vh เพื่อให้พอดีหลังย่อ */
+            height: 133.33vh; 
         }
         
-        /* พื้นหลังที่มีสีสัน */
         .bg-decoration {
             position: absolute;
             border-radius: 50%;
@@ -60,7 +58,6 @@
             z-index: 0;
         }
         
-        /* ดาว */
         .star {
             position: absolute;
             background: white;
@@ -73,7 +70,6 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
         
-        /* พลุ */
         @keyframes firework {
             0% { transform: translate(0, 0) scale(0); opacity: 1; }
             50% { opacity: 1; }
@@ -95,7 +91,7 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
-        .medal-icon { animation: medalFloat 3s ease-in-out infinite; }
+        .medal-icon { animation: medalFloat 3s ease-in-out infinite; display: inline-block; }
 
         @keyframes floatUpFade {
             0% { opacity: 1; transform: translateY(0) scale(1); }
@@ -198,26 +194,21 @@
         }
         .winner-crown-mini { font-size: 1.8rem; animation: medalFloat 2s infinite; }
 
-        /* ปรับขนาดการ์ดให้ใหญ่ขึ้น */
-        .ranking-card {
-            min-height: 220px;
-        }
-        
-        /* จัดการพื้นที่คะแนนให้เพียงพอ */
-        .score-section {
-            min-width: 280px;
-        }
+        .ranking-card { min-height: 220px; }
+        .score-section { min-width: 280px; }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
-    <audio id="sfx-score" src="https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"></audio>
+    <audio id="sfx-score" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
+    
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
-    <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/oedipus_wizball_highscore.mp3"></audio>
-    <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/bodenstaendig_2000_in_rock_4bit.mp3"></audio>
+    
+    <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/OST%20Stardust%20Crusaders%20World%20Track%2019%20-%20Travelers%20Who%20Rest.mp3"></audio>
+    
+    <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3"></audio>
 
-    <!-- พื้นหลังตกแต่ง -->
     <div id="bg-decorations"></div>
 
     <div id="mode-selector" class="fixed inset-0 z-50 bg-gradient-to-br from-purple-600 to-blue-600 flex flex-col items-center justify-center space-y-8">
@@ -303,9 +294,8 @@
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
-        sfxScore.volume = 0.4; sfxWin.volume = 0.5; sfxClick.volume = 0.3; bgmNormal.volume = 0.4; bgmExcited.volume = 0.2;
+        sfxScore.volume = 0.5; sfxWin.volume = 0.5; sfxClick.volume = 0.3; bgmNormal.volume = 0.4; bgmExcited.volume = 0.5;
 
-        // รอ Firebase พร้อม
         function waitForFirebase() {
             return new Promise((resolve) => {
                 const checkInterval = setInterval(() => {
@@ -318,7 +308,6 @@
             });
         }
 
-        // โหลดข้อมูลจาก Firebase
         async function loadFromFirebase() {
             await waitForFirebase();
             const teamsRef = window.firebaseRef(window.firebaseDB, 'teams');
@@ -343,7 +332,6 @@
             });
         }
 
-        // บันทึกไป Firebase
         async function saveToFirebase() {
             if (!isFirebaseReady) return;
             await window.firebaseSet(window.firebaseRef(window.firebaseDB, 'teams'), teams);
@@ -367,11 +355,9 @@
             }
         }
 
-        // สร้างพื้นหลังตกแต่ง
         function createBackgroundDecoration() {
             const container = document.getElementById('bg-decorations');
             
-            // สร้างดาว 30 ดวง
             for(let i = 0; i < 30; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -383,7 +369,6 @@
                 container.appendChild(star);
             }
             
-            // สร้างพลุอัตโนมัติ
             setInterval(() => {
                 if(currentMode === 'display') {
                     createFirework();
