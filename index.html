@@ -289,6 +289,7 @@
         let currentMode = '';
         let currentMusicState = 'none';
         let isFirebaseReady = false;
+        let isFirstLoad = true; // ป้องกันเสียงดังตอนโหลดหน้าครั้งแรก
 
         // Audio Refs
         const sfxScore = document.getElementById('sfx-score');
@@ -322,7 +323,7 @@
                 const data = snapshot.val();
                 if (data) {
                     // Logic เช็คคะแนนเพิ่มเพื่อเล่นเสียงที่หน้าจอ Display
-                    if (currentMode === 'display') {
+                    if (currentMode === 'display' && !isFirstLoad) { // ไม่เล่นเสียงตอนโหลดครั้งแรก
                         let hasScoreIncreased = false;
                         data.forEach((t, i) => {
                             const prevScore = previousScores[i] || 0;
@@ -334,13 +335,14 @@
                         if (hasScoreIncreased) {
                             playSound('display_hit'); // เล่นเสียง ORA ORA
                         }
-                        
-                        previousScores = data.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
                     }
 
+                    // อัปเดตคะแนนล่าสุดเก็บไว้
+                    previousScores = data.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
                     teams = data;
                     renderDisplay();
                     renderAdmin();
+                    isFirstLoad = false; // จบการโหลดครั้งแรก
                 }
             });
             
@@ -427,6 +429,14 @@
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 playSound('click');
+                // กระตุ้นเสียง Display Hit (เล่นเสียงเบาๆ แล้วหยุดทันทีเพื่อให้ browser จำว่ามี interaction แล้ว)
+                sfxDisplayHit.volume = 0.01;
+                sfxDisplayHit.play().then(() => {
+                    sfxDisplayHit.pause();
+                    sfxDisplayHit.currentTime = 0;
+                    sfxDisplayHit.volume = 0.6; // คืนค่าความดัง
+                }).catch(() => {});
+
                 createBackgroundDecoration();
                 checkAndUpdateMusic();
                 renderDisplay();
