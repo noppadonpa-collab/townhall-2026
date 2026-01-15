@@ -6,6 +6,27 @@
     <title>Scoreboard System (Townhall 2026)</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2ls46sUauR-lPttvahhww3BiHIBr5Gek",
+            authDomain: "townhall-37c18.firebaseapp.com",
+            databaseURL: "https://townhall-37c18-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "townhall-37c18",
+            storageBucket: "townhall-37c18.firebasestorage.app",
+            messagingSenderId: "728485322328",
+            appId: "1:728485322328:web:783c2aeb40cefee23f342d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.firebaseDB = db;
+        window.firebaseRef = ref;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
+    </script>
     <script>
         tailwind.config = {
             theme: {
@@ -17,140 +38,141 @@
         }
     </script>
     <style>
-        body { background-color: #f8fafc; color: #1e293b; overflow: hidden; }
-        
-        /* การ์ดทีม (ด้านขวา) */
-        .display-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
-            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1e293b; 
+            overflow: hidden; 
+            position: relative;
         }
         
-        /* Animation ตัวเลขเด้ง */
+        /* พื้นหลังที่มีสีสัน */
+        .bg-decoration {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* ดาว */
+        .star {
+            position: absolute;
+            background: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* พลุ */
+        @keyframes firework {
+            0% { transform: translate(0, 0) scale(0); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
+        }
+        
+        .firework-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: firework 1.5s ease-out forwards;
+        }
+
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-anim.pop { transform: scale(1.3); }
 
-        /* หลอดคะแนน */
-        .progress-track {
-            background-color: #f1f5f9;
-            border-radius: 999px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .progress-bar {
-            height: 100%;
-            border-radius: 999px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transform: translateX(-100%);
-            animation: shimmer 2.5s infinite;
-        }
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-
-        /* เหรียญลอย (Ranking) */
         @keyframes medalFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
         .medal-icon { animation: medalFloat 3s ease-in-out infinite; }
 
-        /* ตัวเลขลอย (+100) */
         @keyframes floatUpFade {
             0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
         }
         .floating-score {
             position: absolute;
-            font-size: 2.5rem; 
+            font-size: 4rem; 
             font-weight: 900;
-            animation: floatUpFade 1.2s ease-out forwards;
+            animation: floatUpFade 1.5s ease-out forwards;
             pointer-events: none;
-            z-index: 50;
+            z-index: 60;
             text-shadow: 0 4px 10px rgba(255,255,255,0.9);
-            -webkit-text-stroke: 1px white;
-            right: 20px;
-            top: 50%;
+            -webkit-text-stroke: 2px white;
+            right: 180px;
+            top: 40%;
         }
 
-        /* Confetti ทั่วไป */
-        .confetti-general {
-            position: fixed; width: 12px; height: 12px;
-            z-index: 100;
-            animation: confettiFall 2.5s linear forwards;
-            pointer-events: none;
-        }
-        @keyframes confettiFall {
-            to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* Scrollbar ซ่อนไว้เพื่อความสวยงาม */
         .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- Styles สำหรับ Mascot Race --- */
-        #racetrack-wrapper {
-            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        .progress-container-custom {
+            position: relative;
+            width: 100%;
+            height: 4rem;
+            background-color: #f1f5f9;
+            border-radius: 999px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 0.5rem;
+            overflow: visible;
         }
-        .finish-line-tape {
+
+        .progress-fill-custom {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-fill-custom::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+            border-radius: 999px;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        .finish-tape-in-bar {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            z-index: 20;
             background-image: 
                 linear-gradient(45deg, #334155 25%, transparent 25%), 
                 linear-gradient(-45deg, #334155 25%, transparent 25%), 
                 linear-gradient(45deg, transparent 75%, #334155 75%), 
                 linear-gradient(-45deg, transparent 75%, #334155 75%);
-            background-size: 16px 16px;
-            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            background-size: 12px 12px;
+            background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
             opacity: 0.8;
-            border-left: 2px dashed rgba(255,255,255,0.5);
-        }
-        
-        /* หอยทากขนาดใหญ่ ชัดเจน */
-        .snail-racer {
-            position: absolute;
-            left: 0;
-            bottom: 4px; /* ปรับขึ้นมานิดหน่อยไม่ให้จม */
-            font-size: 3rem; /* ขนาดใหญ่ขึ้น */
-            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 20;
-            transform: scaleX(-1);
-            filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.3)); /* เงาชัดขึ้น */
-        }
-        
-        /* ท่าทางดีใจเมื่อเข้าเส้นชัย */
-        @keyframes happyBounce {
-            0%, 100% { transform: scaleX(-1) translateY(0) scaleY(1); }
-            50% { transform: scaleX(-1) translateY(-15px) scaleY(1.15); }
-        }
-        .winner-snail { animation: happyBounce 0.6s ease-in-out infinite; }
-        
-        .winner-badge-container {
-             transform: scaleX(-1);
-             position: absolute;
-             top: -35px;
-             left: 50%;
-             transform: translateX(-50%) scaleX(-1);
-             display: flex;
-             flex-direction: column;
-             align-items: center;
-        }
-        .winner-crown { font-size: 1.8rem; animation: medalFloat 2s ease-in-out infinite; }
-        .finished-text {
-            font-size: 0.7rem; font-weight: 800; color: #fff; background-color: #22c55e;
-            padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-top: -4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border-left: 1px dashed rgba(255,255,255,0.5);
+            border-right: 1px dashed rgba(255,255,255,0.5);
         }
 
-        /* Confetti เฉพาะจุดเส้นชัย */
+        .mascot-on-bar {
+            position: absolute;
+            bottom: -5px;
+            font-size: 4rem;
+            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 30;
+            transform: scaleX(-1);
+            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));
+            pointer-events: none;
+        }
+
         .confetti-finish {
-            position: absolute; width: 8px; height: 8px; z-index: 30;
+            position: absolute; width: 8px; height: 8px; z-index: 50;
             border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none;
         }
         @keyframes finishExplosion {
@@ -158,21 +180,45 @@
             80% { opacity: 1; }
             100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
         }
+        
+        .winner-badge-mini {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .winner-crown-mini { font-size: 1.8rem; animation: medalFloat 2s infinite; }
+
+        /* ปรับขนาดการ์ดให้ใหญ่ขึ้น */
+        .ranking-card {
+            min-height: 220px;
+        }
+        
+        /* จัดการพื้นที่คะแนนให้เพียงพอ */
+        .score-section {
+            min-width: 280px;
+        }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
- <audio id="sfx-score" src="https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"></audio>
+    <audio id="sfx-score" src="https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"></audio>
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
-    
-<audio id="bgm-normal" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/oedipus_wizball_highscore.mp3"></audio>
+    <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/oedipus_wizball_highscore.mp3"></audio>
+    <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/bodenstaendig_2000_in_rock_4bit.mp3"></audio>
 
-<audio id="bgm-excited" loop src="https://raw.githubusercontent.com/photonstorm/phaser3-examples/master/public/assets/audio/bodenstaendig_2000_in_rock_4bit.mp3"></audio>
-    <div id="mode-selector" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center space-y-8">
+    <!-- พื้นหลังตกแต่ง -->
+    <div id="bg-decorations"></div>
+
+    <div id="mode-selector" class="fixed inset-0 z-50 bg-gradient-to-br from-purple-600 to-blue-600 flex flex-col items-center justify-center space-y-8">
         <div class="text-center space-y-2">
-            <h1 class="text-6xl font-bold text-slate-800 drop-shadow-sm">🏆 ระบบนับคะแนน Townhall 2026</h1>
-            <p class="text-slate-400 text-lg">*กดปุ่มด้านล่างเพื่อเปิดใช้งานเสียง</p>
+            <h1 class="text-6xl font-bold text-white drop-shadow-lg">🏆 ระบบนับคะแนน Townhall 2026</h1>
+            <p class="text-white/80 text-lg">*กดปุ่มด้านล่างเพื่อเปิดใช้งานเสียง</p>
         </div>
         <div class="flex gap-8">
             <button onclick="enterMode('display')" class="group px-10 py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-80">
@@ -186,52 +232,29 @@
         </div>
     </div>
 
-    <div id="display-view" class="hidden w-full h-full flex-row bg-slate-50 relative">
-        <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
-        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-3xl translate-y-1/2 translate-x-1/2"></div>
-
-        <main class="flex-1 p-6 flex flex-col z-10 h-full relative overflow-hidden gap-4">
-            <header class="text-left relative pl-4 flex-shrink-0">
-                <h1 id="display-title" class="text-5xl font-extrabold text-slate-800 tracking-tight">Townhall 2026</h1>
-                <div class="h-2 w-32 bg-gradient-to-r from-blue-500 to-purple-500 mt-2 rounded-full"></div>
-                <div class="absolute top-0 right-0 pr-8">
-                     <span class="text-xl font-bold text-slate-400">TARGET: <span class="text-slate-700">1,500</span></span>
+    <div id="display-view" class="hidden w-full h-full relative justify-center">
+        <main class="w-full max-w-[1400px] p-8 flex flex-col z-10 h-full relative overflow-hidden gap-2 mx-auto">
+            <header class="text-left relative pl-2 flex-shrink-0 flex justify-between items-end mb-4">
+                <div>
+                    <h1 id="display-title" class="text-7xl lg:text-8xl font-black text-white tracking-tight leading-none drop-shadow-lg">Townhall 2026</h1>
+                    <div class="h-3 w-48 bg-gradient-to-r from-yellow-400 to-pink-500 mt-4 rounded-full"></div>
+                </div>
+                <div class="pb-2">
+                     <span class="text-3xl font-bold text-white/80">TARGET: <span class="text-white text-4xl drop-shadow-md">1,500</span></span>
                 </div>
             </header>
 
-            <div id="ranking-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-            </div>
-
-            <div id="mascot-race-area" class="flex-shrink-0 pt-2 border-t border-slate-200/50">
-                <div class="flex justify-between items-center mb-2 px-2">
-                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">🏁 Race to Victory! <span class="text-sm text-slate-400 font-normal">(ใครถึงก่อนชนะ)</span></h3>
-                </div>
-                
-                <div id="racetrack-wrapper" class="flex flex-col gap-4 bg-slate-100/80 p-4 rounded-2xl relative overflow-hidden border border-slate-200 shadow-inner">
-                    <div class="finish-line-tape absolute right-4 top-0 bottom-0 w-6 h-full z-10 shadow-sm"></div>
-                    <div id="finish-line-confetti-container" class="absolute right-6 top-0 bottom-0 w-2 pointer-events-none z-30"></div>
-                </div>
+            <div id="ranking-list" class="flex-1 flex flex-col justify-center gap-6 my-2 overflow-y-auto px-4 custom-scrollbar pb-8">
             </div>
         </main>
-
-        <aside class="w-[380px] bg-white/70 backdrop-blur-xl border-l border-slate-200 p-5 flex flex-col shadow-2xl z-20 relative h-full overflow-y-auto custom-scrollbar">
-            <div class="mb-4 text-center sticky top-0 bg-white/0 backdrop-blur-md py-2 z-10">
-                <h2 class="text-xl font-bold text-slate-700 uppercase tracking-widest flex justify-center items-center gap-2">
-                    ⚡ Live Updates
-                </h2>
-            </div>
-            
-            <div id="team-grid-container" class="flex flex-col gap-4 pb-4">
-            </div>
-        </aside>
     </div>
 
     <div id="admin-view" class="hidden h-full overflow-y-auto bg-slate-100">
-        <div class="max-w-5xl mx-auto p-8">
+        <div class="max-w-6xl mx-auto p-8">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8 flex justify-between items-center sticky top-4 z-30">
                 <div><h1 class="text-2xl font-bold text-slate-800">⚙️ แผงควบคุม</h1></div>
                 <div class="flex gap-4">
-                     <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none w-64 font-medium transition-all" placeholder="Townhall 2026">
+                     <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none w-96 font-bold text-lg transition-all" placeholder="Townhall 2026">
                     <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all">🗑️ ล้างคะแนน</button>
                 </div>
             </div>
@@ -241,75 +264,158 @@
 
     <script>
         const TARGET_SCORE = 1500;
-        const EXCITED_THRESHOLD = 700; // เกณฑ์เปลี่ยนเพลง
+        const EXCITED_THRESHOLD = 700; 
+        
+        const ANIMAL_OPTIONS = ['🦫', '🐇', '🐢', '🐌', '🐘', '🦁', '🐯', '🐼', '🦒', '🦏'];
+        
+        const COLOR_OPTIONS = [
+            { name: '🔴 สีแดง', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-500', glow: 'drop-shadow(0 0 10px rgba(239, 68, 68, 1))' },
+            { name: '🔵 สีน้ำเงิน', color: 'text-blue-500', bg: 'bg-blue-500', border: 'border-blue-500', glow: 'drop-shadow(0 0 10px rgba(59, 130, 246, 1))' },
+            { name: '🟢 สีเขียว', color: 'text-green-600', bg: 'bg-green-500', border: 'border-green-500', glow: 'drop-shadow(0 0 10px rgba(34, 197, 94, 1))' },
+            { name: '🟡 สีเหลือง', color: 'text-yellow-500', bg: 'bg-yellow-400', border: 'border-yellow-400', glow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' },
+            { name: '🟣 สีม่วง', color: 'text-purple-500', bg: 'bg-purple-500', border: 'border-purple-500', glow: 'drop-shadow(0 0 10px rgba(168, 85, 247, 1))' },
+            { name: '🩷 สีชมพู', color: 'text-pink-500', bg: 'bg-pink-500', border: 'border-pink-500', glow: 'drop-shadow(0 0 10px rgba(236, 72, 153, 1))' },
+            { name: '🟠 สีส้ม', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
+            { name: '🩵 สีฟ้า', color: 'text-teal-500', bg: 'bg-teal-500', border: 'border-teal-500', glow: 'drop-shadow(0 0 10px rgba(20, 184, 166, 1))' }
+        ];
         
         const defaultData = [
-            { id: 0, name: 'สีแดง', score: 0, count: 0, hasFinished: false, color: 'text-red-500', bg: 'bg-red-500', icon: '🔴', border: 'border-red-500', snailGlow: 'drop-shadow(0 0 10px rgba(239, 68, 68, 1))' },
-            { id: 1, name: 'สีน้ำเงิน', score: 0, count: 0, hasFinished: false, color: 'text-blue-500', bg: 'bg-blue-500', icon: '🔵', border: 'border-blue-500', snailGlow: 'drop-shadow(0 0 10px rgba(59, 130, 246, 1))' },
-            { id: 2, name: 'สีเขียว', score: 0, count: 0, hasFinished: false, color: 'text-green-600', bg: 'bg-green-500', icon: '🟢', border: 'border-green-500', snailGlow: 'drop-shadow(0 0 10px rgba(34, 197, 94, 1))' },
-            { id: 3, name: 'สีเหลือง', score: 0, count: 0, hasFinished: false, color: 'text-yellow-500', bg: 'bg-yellow-400', icon: '🟡', border: 'border-yellow-400', snailGlow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' }
+            { id: 0, name: 'ทีมคาปิบาร่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], icon: '🦫' },
+            { id: 1, name: 'ทีมกระต่าย', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], icon: '🐇' },
+            { id: 2, name: 'ทีมเต่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], icon: '🐢' },
+            { id: 3, name: 'ทีมหอยทาก', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], icon: '🐌' }
         ];
 
-        let teams = JSON.parse(localStorage.getItem('sb_teams_v5')) || defaultData; 
-        let mainTitle = localStorage.getItem('sb_title_v5') || "Townhall 2026";
+        let teams = defaultData;
+        let mainTitle = "Townhall 2026";
         let currentMode = '';
-        let currentMusicState = 'none'; // none, normal, excited
+        let currentMusicState = 'none';
+        let isFirebaseReady = false;
 
-        // Audio Elements
         const sfxScore = document.getElementById('sfx-score');
         const sfxWin = document.getElementById('sfx-win');
         const sfxClick = document.getElementById('sfx-click');
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
-        // Set volumes
-        sfxScore.volume = 0.4;
-        sfxWin.volume = 0.5;
-        sfxClick.volume = 0.3;
-        bgmNormal.volume = 0.2;
-        bgmExcited.volume = 0.3;
+        sfxScore.volume = 0.4; sfxWin.volume = 0.5; sfxClick.volume = 0.3; bgmNormal.volume = 0.4; bgmExcited.volume = 0.2;
+
+        // รอ Firebase พร้อม
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                const checkInterval = setInterval(() => {
+                    if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue && window.firebaseSet) {
+                        clearInterval(checkInterval);
+                        isFirebaseReady = true;
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+
+        // โหลดข้อมูลจาก Firebase
+        async function loadFromFirebase() {
+            await waitForFirebase();
+            const teamsRef = window.firebaseRef(window.firebaseDB, 'teams');
+            const titleRef = window.firebaseRef(window.firebaseDB, 'title');
+            
+            window.firebaseOnValue(teamsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    teams = data;
+                    renderDisplay();
+                    renderAdmin();
+                }
+            });
+            
+            window.firebaseOnValue(titleRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    mainTitle = data;
+                    document.getElementById('display-title').innerText = mainTitle;
+                    document.getElementById('main-title-input').value = mainTitle;
+                }
+            });
+        }
+
+        // บันทึกไป Firebase
+        async function saveToFirebase() {
+            if (!isFirebaseReady) return;
+            await window.firebaseSet(window.firebaseRef(window.firebaseDB, 'teams'), teams);
+            await window.firebaseSet(window.firebaseRef(window.firebaseDB, 'title'), mainTitle);
+        }
 
         function playSound(type) {
-            const audioMap = {
-                'score': sfxScore,
-                'win': sfxWin,
-                'click': sfxClick
-            };
+            const audioMap = { 'score': sfxScore, 'win': sfxWin, 'click': sfxClick };
             const audio = audioMap[type];
-            if(audio) {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-            }
+            if(audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
         }
 
         function checkAndUpdateMusic() {
             if(currentMode !== 'display') return;
-            
             const maxScore = Math.max(...teams.map(t => t.score));
             const targetState = maxScore >= EXCITED_THRESHOLD ? 'excited' : 'normal';
-
             if(currentMusicState !== targetState) {
-                if(targetState === 'excited') {
-                    bgmNormal.pause();
-                    bgmExcited.currentTime = 0;
-                    bgmExcited.play().catch(() => {});
-                } else {
-                    bgmExcited.pause();
-                    bgmNormal.currentTime = 0;
-                    bgmNormal.play().catch(() => {});
-                }
+                if(targetState === 'excited') { bgmNormal.pause(); bgmExcited.currentTime = 0; bgmExcited.play().catch(() => {}); } 
+                else { bgmExcited.pause(); bgmNormal.currentTime = 0; bgmNormal.play().catch(() => {}); }
                 currentMusicState = targetState;
+            }
+        }
+
+        // สร้างพื้นหลังตกแต่ง
+        function createBackgroundDecoration() {
+            const container = document.getElementById('bg-decorations');
+            
+            // สร้างดาว 30 ดวง
+            for(let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 15 + 10) + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+            
+            // สร้างพลุอัตโนมัติ
+            setInterval(() => {
+                if(currentMode === 'display') {
+                    createFirework();
+                }
+            }, 3000);
+        }
+
+        function createFirework() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ee5a6f', '#c44569'];
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * (window.innerHeight * 0.6);
+            
+            for(let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (Math.PI * 2 * i) / 20;
+                const distance = 50 + Math.random() * 100;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
             }
         }
 
         function enterMode(mode) {
             currentMode = mode;
             document.getElementById('mode-selector').classList.add('hidden');
-            
             if(mode === 'display') {
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 playSound('click');
+                createBackgroundDecoration();
                 checkAndUpdateMusic();
                 renderDisplay();
             } else {
@@ -319,271 +425,169 @@
             }
         }
 
-        function save() {
-            localStorage.setItem('sb_teams_v5', JSON.stringify(teams));
-            localStorage.setItem('sb_title_v5', mainTitle);
-        }
-
-        // --- DISPLAY RENDERER ---
         function renderDisplay() {
             if(document.getElementById('display-view').classList.contains('hidden')) return;
-
             document.getElementById('display-title').innerText = mainTitle;
-            
-            renderSidebarCards(); 
-            renderRankingMain();  
-            renderMascotRace();
+            renderAllInOneCards();
             checkAndUpdateMusic();
         }
 
-        function renderSidebarCards() {
-            const gridContainer = document.getElementById('team-grid-container');
+        function renderAllInOneCards() {
+            const container = document.getElementById('ranking-list');
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
 
-            if(gridContainer.children.length === 0) {
-                gridContainer.innerHTML = teams.map((t, i) => `
-                    <div id="card-${i}" class="display-card flex-1 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border-l-8 ${t.border.replace('text','border')}">
-                        
-                        <div class="flex items-center gap-4 z-10 pl-2">
-                             <div class="text-4xl filter drop-shadow-sm">${t.icon}</div>
-                             <div>
-                                <h2 class="text-2xl font-bold text-slate-700 leading-tight">${t.name}</h2>
-                                <div class="text-sm text-slate-400 mt-1 font-medium">Updates: ${t.count}</div>
-                             </div>
-                        </div>
-                        
-                        <div class="z-10 text-right pr-2">
-                            <div id="score-${i}" class="text-6xl font-black leading-none ${t.color} score-anim drop-shadow-sm">${t.score}</div>
-                        </div>
-
-                        <div class="absolute bottom-0 left-0 w-full h-1.5 bg-slate-100">
-                             <div id="mini-progress-${i}" class="h-full ${t.bg} opacity-60" style="width: 0%"></div>
-                        </div>
-                    </div>
-                `).join('');
+            container.innerHTML = sortedTeams.map((t, rankIndex) => {
+                const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
+                const rank = rankIndex + 1;
                 
-                setTimeout(() => {
-                    teams.forEach((t, i) => {
-                        const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                        document.getElementById(`mini-progress-${i}`).style.width = `${percent}%`;
-                    });
-                }, 100);
+                let rankDisplay = '';
+                let containerClass = 'bg-white/95 border-slate-200 backdrop-blur-sm';
+                const scoreSize = 'text-7xl'; 
+                const iconSize = 'text-6xl'; 
+                const nameSize = 'text-4xl';
 
-            } else {
-                teams.forEach((t, i) => {
-                    const scoreEl = document.getElementById(`score-${i}`);
-                    const oldScore = parseInt(scoreEl.innerText);
+                if(rank === 1) {
+                    rankDisplay = `<div class="text-8xl mr-6 medal-icon drop-shadow-lg">🥇</div>`;
+                    containerClass = 'bg-gradient-to-r from-yellow-100/95 via-white/95 to-yellow-50/95 border-yellow-400 backdrop-blur-sm';
+                } else if(rank === 2) {
+                    rankDisplay = `<div class="text-8xl mr-6 medal-icon drop-shadow-lg" style="animation-delay: 0.5s">🥈</div>`;
+                    containerClass = 'bg-gradient-to-r from-slate-100/95 via-white/95 to-slate-50/95 border-slate-300 backdrop-blur-sm';
+                } else if(rank === 3) {
+                    rankDisplay = `<div class="text-8xl mr-6 medal-icon drop-shadow-lg" style="animation-delay: 1s">🥉</div>`;
+                    containerClass = 'bg-gradient-to-r from-orange-100/95 via-white/95 to-orange-50/95 border-orange-300 backdrop-blur-sm';
+                } else {
+                    rankDisplay = `<div class="text-7xl font-black text-slate-300 mr-6 w-24 text-center">#${rank}</div>`;
+                }
+
+                const mascotLeft = `calc(${percent}% - 4rem)`;
+
+                return `
+                <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[3rem] border-[3px] shadow-2xl px-10 py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
                     
-                    if(oldScore !== t.score) {
-                        scoreEl.innerText = t.score;
-                        
-                        scoreEl.classList.remove('pop');
-                        void scoreEl.offsetWidth;
-                        scoreEl.classList.add('pop');
-                        
-                        const diff = t.score - oldScore;
-                        if(diff > 0) {
-                            showFloatingText(i, diff);
-                            playSound('score');
-                        }
-
-                        const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                        document.getElementById(`mini-progress-${i}`).style.width = `${percent}%`;
-                    }
-                });
-            }
-        }
-
-        function renderMascotRace() {
-            const wrapper = document.getElementById('racetrack-wrapper');
-            
-            if(wrapper.getElementsByClassName('racetrack').length === 0) {
-                 const tracksHTML = teams.map((t, i) => `
-                    <div class="racetrack relative h-16 bg-white rounded-full border-2 border-slate-200 overflow-hidden z-0 shadow-sm flex items-center">
-                        <div class="absolute inset-0 opacity-20 ${t.bg}"></div>
-                        
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-full border-b-2 border-dashed border-slate-300/50"></div>
-                        </div>
-
-                        <div id="snail-${i}" class="snail-racer" style="filter: ${t.snailGlow}">
-                            <span class="relative z-10 block">🐌</span>
+                    <div class="flex items-center z-10" style="width: 35%;">
+                        ${rankDisplay}
+                        <div class="flex items-center gap-5">
+                            <span class="${iconSize} filter drop-shadow-lg">${t.icon}</span>
+                            <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm">${t.name}</span>
                         </div>
                     </div>
-                `).join('');
-                wrapper.insertAdjacentHTML('afterbegin', tracksHTML);
-            }
+
+                    <div class="flex flex-col justify-center z-10 h-full relative score-section" style="width: 60%;">
+                        
+                        <div class="text-right mb-2" style="padding-right: 80px;">
+                            <span id="score-text-${t.id}" class="font-black ${t.color} ${scoreSize} leading-none filter drop-shadow-lg score-anim block">${t.score}</span>
+                        </div>
+
+                        <div class="progress-container-custom">
+                            <div class="absolute inset-0 bg-slate-200/50 rounded-full"></div>
+                            
+                            <div class="finish-tape-in-bar"></div>
+
+                            <div id="progress-fill-${t.id}" class="progress-fill-custom ${t.bg}" style="width: ${percent}%"></div>
+
+                            <div id="mascot-runner-${t.id}" class="mascot-on-bar" style="left: ${mascotLeft}; filter: ${t.glow}">
+                                <span class="relative block">${t.icon}</span>
+                            </div>
+                            
+                            <div id="confetti-point-${t.id}" class="absolute top-0 bottom-0 right-2 w-1 pointer-events-none"></div>
+                        </div>
+
+                    </div>
+                </div>`;
+            }).join('');
 
             setTimeout(() => {
-                teams.forEach((t, i) => {
-                    const snailEl = document.getElementById(`snail-${i}`);
-                    const rawPercent = (t.score / TARGET_SCORE) * 100;
-                    const percent = Math.min(100, rawPercent);
-                    
-                    snailEl.style.left = `calc(${percent}% - 4rem)`;
+                sortedTeams.forEach((t) => {
+                    const mascotEl = document.getElementById(`mascot-runner-${t.id}`);
+                    const scoreEl = document.getElementById(`score-text-${t.id}`);
+                    const confettiPoint = document.getElementById(`confetti-point-${t.id}`);
+                    const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
 
                     if (percent >= 100) {
-                        if (!snailEl.classList.contains('winner-snail')) {
-                             snailEl.classList.add('winner-snail');
-                             snailEl.innerHTML = `
-                                <div class="winner-badge-container">
-                                    <span class="winner-crown">👑</span>
-                                    <span class="finished-text">FINISHED!</span>
+                        if (!mascotEl.classList.contains('winner-mascot')) {
+                             mascotEl.classList.add('winner-mascot');
+                             mascotEl.innerHTML = `
+                                <div class="winner-badge-mini">
+                                    <span class="winner-crown-mini">👑</span>
                                 </div>
-                                <span class="relative z-10 block">🐌</span>
+                                <span class="relative block">${t.icon}</span>
                              `;
                         }
-
+                        
                         if (!t.hasFinished) {
                             t.hasFinished = true;
-                            save();
+                            saveToFirebase();
                             playSound('win');
-                            triggerFinishLineCelebration(t.bg.replace('bg-', ''));
+                            triggerMiniConfetti(confettiPoint, t.bg.replace('bg-', ''));
                         }
-
                     } else {
-                        snailEl.classList.remove('winner-snail');
-                        snailEl.innerHTML = '<span class="relative z-10 block">🐌</span>';
-                        if(t.hasFinished) { t.hasFinished = false; save(); }
+                        mascotEl.classList.remove('winner-mascot');
+                        mascotEl.innerHTML = `<span class="relative block">${t.icon}</span>`;
+                        if(t.hasFinished) { t.hasFinished = false; saveToFirebase(); }
                     }
+
+                    scoreEl.classList.remove('pop');
+                    void scoreEl.offsetWidth;
+                    scoreEl.classList.add('pop');
                 });
             }, 50);
         }
 
-        // ฟังก์ชั่นจุดพลุที่เส้นชัย
-        function triggerFinishLineCelebration(colorName) {
-            const container = document.getElementById('finish-line-confetti-container');
-            const colorsMap = {
-                'red-500': '#ef4444',
-                'blue-500': '#3b82f6',
-                'green-500': '#22c55e',
-                'yellow-400': '#eab308'
+        function triggerMiniConfetti(element, colorName) {
+            if(!element) return;
+            const colorsMap = { 
+                'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 
+                'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899',
+                'orange-500': '#f97316', 'teal-500': '#14b8a6'
             };
             const colorHex = colorsMap[colorName] || '#ffd700';
 
-            for(let i=0; i<30; i++) {
+            for(let i=0; i<20; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-finish';
                 el.style.backgroundColor = colorHex;
-                el.style.top = Math.random() * 100 + '%';
+                el.style.top = '50%';
+                el.style.left = '50%';
                 
-                // สุ่มทิศทางการระเบิด
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 50 + Math.random() * 100;
+                const distance = 40 + Math.random() * 60;
+                
                 el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
                 
-                container.appendChild(el);
+                element.appendChild(el);
                 setTimeout(() => el.remove(), 1500);
             }
-            // แถมพลุใหญ่กลางจอด้วย
             createGlobalConfetti();
         }
 
-
-        // ฟังก์ชั่นแสดง Ranking อันใหญ่ด้านซ้าย
-        function renderRankingMain() {
-            const container = document.getElementById('ranking-list');
-            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
-
-            container.innerHTML = sortedTeams.map((t, index) => {
-                const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                const rank = index + 1;
-                
-                let rankDisplay = '';
-                let containerClass = 'bg-white/90 border-slate-200';
-                let heightClass = 'h-28'; 
-                let scoreSize = 'text-6xl';
-                let iconSize = 'text-5xl';
-                let nameSize = 'text-3xl';
-
-                if(rank === 1) {
-                    rankDisplay = `<div class="text-7xl mr-5 medal-icon drop-shadow-md">🥇</div>`;
-                    containerClass = 'bg-gradient-to-r from-yellow-50 to-white border-yellow-300';
-                    heightClass = 'h-44'; 
-                    scoreSize = 'text-8xl';
-                    iconSize = 'text-7xl';
-                    nameSize = 'text-5xl';
-                } else if(rank === 2) {
-                    rankDisplay = `<div class="text-6xl mr-5 medal-icon drop-shadow-md" style="animation-delay: 0.5s">🥈</div>`;
-                    containerClass = 'bg-gradient-to-r from-slate-50 to-white border-slate-300';
-                    heightClass = 'h-36';
-                    scoreSize = 'text-7xl';
-                    iconSize = 'text-6xl';
-                    nameSize = 'text-4xl';
-                } else if(rank === 3) {
-                    rankDisplay = `<div class="text-6xl mr-5 medal-icon drop-shadow-md" style="animation-delay: 1s">🥉</div>`;
-                    containerClass = 'bg-gradient-to-r from-orange-50 to-white border-orange-300';
-                    heightClass = 'h-36';
-                    scoreSize = 'text-7xl';
-                    iconSize = 'text-6xl';
-                    nameSize = 'text-4xl';
-                } else {
-                    rankDisplay = `<div class="text-4xl font-black text-slate-300 mr-6 w-14 text-center">#${rank}</div>`;
-                }
-
-                return `
-                <div class="w-full ${containerClass} backdrop-blur-md rounded-[2rem] border-2 shadow-sm px-8 py-4 flex items-center justify-between transition-all duration-500 relative overflow-hidden ${heightClass}">
-                    
-                    <div class="flex items-center z-10">
-                        ${rankDisplay}
-                        <div>
-                            <div class="flex items-center gap-4">
-                                <span class="${iconSize} filter drop-shadow-sm">${t.icon}</span>
-                                <span class="font-extrabold text-slate-700 ${nameSize} tracking-tight">${t.name}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-end justify-center z-10 w-1/2 h-full">
-                        <span class="font-black ${t.color} ${scoreSize} mb-2 leading-none filter drop-shadow-sm">${t.score}</span>
-                        <div class="progress-track h-5 w-full bg-slate-200/50 rounded-full overflow-hidden border border-slate-300/50">
-                             <div class="progress-bar ${t.bg} h-full rounded-full shadow-sm" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-
-        function showFloatingText(index, diff) {
-            const card = document.getElementById(`card-${index}`);
-            const el = document.createElement('div');
-            el.className = 'floating-score';
-            
-            const colorClass = teams[index].color; 
-            el.classList.add(colorClass); 
-
-            el.innerText = (diff > 0 ? '+' : '') + diff;
-            
-            el.style.right = '20px';
-            el.style.top = '50%';
-            el.style.transform = 'translate(0, -50%)';
-            
-            card.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
-
-            // ถ้าคะแนนบวกเยอะๆ ให้จุดพลุใหญ่ด้วย
-            if(diff >= 300) createGlobalConfetti();
-        }
-
-        // --- ADMIN RENDERER (คงเดิม) ---
         function renderAdmin() {
             if(document.getElementById('admin-view').classList.contains('hidden')) return;
             document.getElementById('main-title-input').value = mainTitle;
             const container = document.getElementById('admin-container');
-            
             container.innerHTML = teams.map((t, i) => `
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 border-l-8 ${t.border.replace('text','border')}">
+                <div class="bg-white rounded-3xl p-6 shadow-lg border-[3px] ${t.border}">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="text-4xl bg-slate-50 p-3 rounded-2xl">${t.icon}</div>
-                        <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)"
-                            class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none flex-1">
+                        <div class="text-5xl bg-slate-50 p-4 rounded-2xl">${t.icon}</div>
+                        <div class="flex-1">
+                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)"
+                                class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
+                            <div class="flex gap-2 flex-wrap">
+                                <select onchange="updateColor(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                                    <option value="${i}">เปลี่ยนสี</option>
+                                    ${COLOR_OPTIONS.map((c, idx) => `<option value="${idx}">${c.name}</option>`).join('')}
+                                </select>
+                                <select onchange="updateAnimal(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
+                                    <option value="${t.icon}">เปลี่ยนสัตว์</option>
+                                    ${ANIMAL_OPTIONS.map(a => `<option value="${a}">${a}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    
                     <div class="flex justify-between items-end mb-6">
                         <div>
                             <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div>
-                            <div class="text-5xl font-extrabold ${t.color}">${t.score}</div>
+                            <div class="text-6xl font-extrabold ${t.color}">${t.score}</div>
                         </div>
                          <div class="text-right">
                              <div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div>
@@ -592,17 +596,15 @@
                              </div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-3 gap-3 mb-4">
-                        <button onclick="addScore(${i}, 100)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all">+100</button>
-                        <button onclick="addScore(${i}, 200)" class="py-3 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all">+200</button>
-                        <button onclick="addScore(${i}, 300)" class="py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all">+300</button>
+                        <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+100</button>
+                        <button onclick="addScore(${i}, 200)" class="py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+200</button>
+                        <button onclick="addScore(${i}, 300)" class="py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all text-lg">+300</button>
                     </div>
-                    
                     <div class="grid grid-cols-3 gap-3 mb-4">
-                        <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-100</button>
-                        <button onclick="addScore(${i}, -200)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-200</button>
-                        <button onclick="addScore(${i}, -300)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium text-sm border border-slate-200">-300</button>
+                        <button onclick="addScore(${i}, -100)" class="py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200">-100</button>
+                        <button onclick="addScore(${i}, -200)" class="py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200">-200</button>
+                        <button onclick="addScore(${i}, -300)" class="py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200">-300</button>
                     </div>
                     <div class="pt-4 border-t border-slate-100">
                         <button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button>
@@ -611,29 +613,60 @@
             `).join('');
         }
 
-        // --- ACTIONS ---
         function addScore(index, val) {
+            playSound('score');
             teams[index].score += val;
             if(teams[index].score < 0) teams[index].score = 0;
             if(teams[index].score > TARGET_SCORE) teams[index].score = TARGET_SCORE; 
             teams[index].count++;
-            save();
+            
+            const diff = val;
+            if (diff > 0) {
+                const card = document.getElementById(`main-card-${teams[index].id}`);
+                if(card) {
+                    const el = document.createElement('div');
+                    el.className = 'floating-score';
+                    el.classList.add(teams[index].color);
+                    el.innerText = '+' + diff;
+                    card.appendChild(el);
+                    setTimeout(() => el.remove(), 1500);
+                }
+            }
+
+            saveToFirebase();
             renderAdmin(); 
             renderDisplay();
         }
 
         function updateName(index, val) {
             teams[index].name = val;
-            save();
+            saveToFirebase();
+            renderDisplay();
+        }
+
+        function updateColor(index, colorIdx) {
+            if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) {
+                teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] };
+                saveToFirebase();
+                renderAdmin();
+                renderDisplay();
+            }
+        }
+
+        function updateAnimal(index, animal) {
+            teams[index].icon = animal;
+            saveToFirebase();
+            renderAdmin();
+            renderDisplay();
         }
 
         function resetTeam(index) {
             if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) {
-                teams[index].score = 0;
-                teams[index].count = 0;
+                teams[index].score = 0; 
+                teams[index].count = 0; 
                 teams[index].hasFinished = false;
-                save();
-                renderAdmin();
+                saveToFirebase(); 
+                renderAdmin(); 
                 renderDisplay();
             }
         }
@@ -641,43 +674,48 @@
         function resetAll() {
             if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) {
                 teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; });
-                save();
-                renderAdmin();
+                saveToFirebase(); 
+                renderAdmin(); 
                 renderDisplay();
             }
         }
 
-        // Confetti แบบทั่วจอ (ใช้ตอนบวกคะแนนเยอะๆ หรือตอนจบ)
         function createGlobalConfetti() {
-            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308'];
+            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899'];
             for(let i=0; i<50; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-general';
+                el.style.position = 'fixed';
                 el.style.left = Math.random()*100 + 'vw';
+                el.style.top = '-20px';
+                el.style.width = '10px';
+                el.style.height = '10px';
                 el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                el.style.borderRadius = '50%';
+                el.style.zIndex = '100';
+                el.style.pointerEvents = 'none';
+                el.style.animation = 'fall 2s linear forwards';
                 el.style.animationDelay = Math.random() + 's';
                 document.body.appendChild(el);
                 setTimeout(() => el.remove(), 2500);
             }
         }
 
-        window.addEventListener('storage', (e) => {
-            if(e.key === 'sb_teams_v5') {
-                teams = JSON.parse(e.newValue);
-                renderDisplay();
-                renderAdmin();
+        // เพิ่ม animation fall
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
             }
-            if(e.key === 'sb_title_v5') {
-                mainTitle = e.newValue;
-                document.getElementById('display-title').innerText = mainTitle;
-                document.getElementById('main-title-input').value = mainTitle;
-            }
-        });
+        `;
+        document.head.appendChild(style);
 
         document.addEventListener('DOMContentLoaded', () => {
-             document.getElementById('main-title-input').addEventListener('input', (e) => {
-                mainTitle = e.target.value;
-                save();
+            loadFromFirebase();
+            document.getElementById('main-title-input').addEventListener('input', (e) => {
+                mainTitle = e.target.value; 
+                saveToFirebase();
+                document.getElementById('display-title').innerText = mainTitle;
             });
         });
     </script>
