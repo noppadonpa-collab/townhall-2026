@@ -45,19 +45,45 @@
             position: relative;
         }
         
-        #display-view { height: 133.33vh; }
-        
-        /* Background & Animation */
-        .bg-floater {
-            position: absolute; opacity: 0.15; pointer-events: none;
-            animation: floatingBackground linear infinite; z-index: 0;
-        }
-        @keyframes floatingBackground {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(20px, 20px) rotate(10deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
+        #display-view {
+            height: 133.33vh; 
         }
         
+        .bg-decoration {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        @keyframes firework {
+            0% { transform: translate(0, 0) scale(0); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
+        }
+        
+        .firework-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: firework 1.5s ease-out forwards;
+        }
+
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-anim.pop { transform: scale(1.3); }
 
@@ -72,54 +98,78 @@
             100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
         }
         .floating-score {
-            position: absolute; font-size: 4rem; font-weight: 900;
+            position: absolute;
+            font-size: 4rem; 
+            font-weight: 900;
             animation: floatUpFade 1.5s ease-out forwards;
-            pointer-events: none; z-index: 60;
+            pointer-events: none;
+            z-index: 60;
             text-shadow: 0 4px 10px rgba(255,255,255,0.9);
             -webkit-text-stroke: 2px white;
-            right: 180px; top: 40%;
+            right: 180px;
+            top: 40%;
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* Progress Bar */
         .progress-container-custom {
-            position: relative; width: 100%; height: 4.5rem; /* เพิ่มความสูงหลอดนิดหน่อย */
-            background-color: #f1f5f9; border-radius: 999px;
+            position: relative;
+            width: 100%;
+            height: 4rem;
+            background-color: #f1f5f9;
+            border-radius: 999px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 0.5rem; overflow: visible;
+            margin-top: 0.5rem;
+            overflow: visible;
         }
+
         .progress-fill-custom {
-            height: 100%; border-radius: 999px;
+            height: 100%;
+            border-radius: 999px;
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; z-index: 10;
+            position: relative;
+            z-index: 10;
         }
+
         .progress-fill-custom::after {
-            content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transform: translateX(-100%); animation: shimmer 3s infinite;
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
             border-radius: 999px;
         }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
 
         .finish-tape-in-bar {
-            position: absolute; right: 10px; top: 0; bottom: 0; width: 24px; z-index: 20;
-            background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%);
-            background-size: 12px 12px; opacity: 0.8;
-            border-left: 1px dashed rgba(255,255,255,0.5); border-right: 1px dashed rgba(255,255,255,0.5);
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            z-index: 20;
+            background-image: 
+                linear-gradient(45deg, #334155 25%, transparent 25%), 
+                linear-gradient(-45deg, #334155 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #334155 75%), 
+                linear-gradient(-45deg, transparent 75%, #334155 75%);
+            background-size: 12px 12px;
+            background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+            opacity: 0.8;
+            border-left: 1px dashed rgba(255,255,255,0.5);
+            border-right: 1px dashed rgba(255,255,255,0.5);
         }
 
-        /* Mascot Styles */
         .mascot-on-bar {
-            position: absolute; bottom: -8px; font-size: 4rem;
+            position: absolute;
+            bottom: -5px;
+            font-size: 4rem;
             transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 30; pointer-events: none;
-            transform: scaleX(-1); 
-        }
-        
-        /* แก้กลับด้านเฉพาะรูปภาพ */
-        .mascot-image-mode img {
-            transform: scaleX(-1); 
+            z-index: 30;
+            transform: scaleX(-1);
+            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));
+            pointer-events: none;
         }
 
         .confetti-finish {
@@ -133,15 +183,17 @@
         }
         
         .winner-badge-mini {
-            position: absolute; top: -50px; left: 50%; /* ขยับมงกุฎขึ้น */
+            position: absolute;
+            top: -35px;
+            left: 50%;
             transform: translateX(-50%) scaleX(-1);
-            display: flex; flex-direction: column; align-items: center; white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            white-space: nowrap;
         }
-        .mascot-image-mode .winner-badge-mini {
-             transform: translateX(-50%) scaleX(1);
-        }
+        .winner-crown-mini { font-size: 1.8rem; animation: medalFloat 2s infinite; }
 
-        .winner-crown-mini { font-size: 2.5rem; animation: medalFloat 2s infinite; } /* มงกุฎใหญ่ขึ้น */
         .ranking-card { min-height: 220px; }
         .score-section { min-width: 280px; }
     </style>
@@ -149,9 +201,12 @@
 <body class="h-screen overflow-hidden flex flex-col">
 
     <audio id="sfx-score" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
+    
     <audio id="sfx-display-hit" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
+
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
+    
     <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/OST%20Stardust%20Crusaders%20World%20Track%2019%20-%20Travelers%20Who%20Rest.mp3"></audio>
     <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3"></audio>
 
@@ -210,16 +265,6 @@
         
         const ANIMAL_OPTIONS = ['🦫', '🐇', '🐢', '🐌', '🐘', '🦁', '🐯', '🐼', '🦒', '🦏'];
         
-        // ลิงก์ไฟล์รูปภาพจาก GitHub
-        const GH_REPO = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/";
-        const CHARACTER_OPTIONS = [
-            { name: 'ไม่ใช้รูปภาพ', value: '' },
-            { name: 'Dio (The World)', value: GH_REPO + 'png-clipart-dio-brando-jojo-s-bizarre-adventure-over-heaven-jotaro-kujo-jojo-s-bizarre-adventure-all-star-battle-pop-team-epic-jojo.png' },
-            { name: 'Jotaro (Part 4)', value: GH_REPO + 'png-clipart-jotaro-kujo-jojo-s-bizarre-adventure-eyes-of-heaven-josuke-higashikata-jojo-s-bizarre-adventure-all-star-battle-yoshikage-kira-others-miscellaneous-playstation-4-thumbnail.png' },
-            { name: 'Joseph/Jonathan', value: GH_REPO + 'png-clipart-jotaro-kujo-dio-brando-josuke-higashikata-jojo-s-bizarre-adventure-joseph-joestar-anime-cartoon-fictional-character-thumbnail.png' },
-            { name: 'Wamuu', value: GH_REPO + '14230_011.jpg' }
-        ];
-
         const COLOR_OPTIONS = [
             { name: '🔴 สีแดง', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-500', glow: 'drop-shadow(0 0 10px rgba(239, 68, 68, 1))' },
             { name: '🔵 สีน้ำเงิน', color: 'text-blue-500', bg: 'bg-blue-500', border: 'border-blue-500', glow: 'drop-shadow(0 0 10px rgba(59, 130, 246, 1))' },
@@ -227,15 +272,15 @@
             { name: '🟡 สีเหลือง', color: 'text-yellow-500', bg: 'bg-yellow-400', border: 'border-yellow-400', glow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' },
             { name: '🟣 สีม่วง', color: 'text-purple-500', bg: 'bg-purple-500', border: 'border-purple-500', glow: 'drop-shadow(0 0 10px rgba(168, 85, 247, 1))' },
             { name: '🩷 สีชมพู', color: 'text-pink-500', bg: 'bg-pink-500', border: 'border-pink-500', glow: 'drop-shadow(0 0 10px rgba(236, 72, 153, 1))' },
-            { name: '🟠 สีส้ม', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
+            { name: '🟠 สีส้म', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
             { name: '🩵 สีฟ้า', color: 'text-teal-500', bg: 'bg-teal-500', border: 'border-teal-500', glow: 'drop-shadow(0 0 10px rgba(20, 184, 166, 1))' }
         ];
         
         const defaultData = [
-            { id: 0, name: 'ทีมคาปิบาร่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], icon: '🦫', characterImage: '' },
-            { id: 1, name: 'ทีมกระต่าย', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], icon: '🐇', characterImage: '' },
-            { id: 2, name: 'ทีมเต่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], icon: '🐢', characterImage: '' },
-            { id: 3, name: 'ทีมหอยทาก', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], icon: '🐌', characterImage: '' }
+            { id: 0, name: 'ทีมคาปิบาร่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], icon: '🦫' },
+            { id: 1, name: 'ทีมกระต่าย', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], icon: '🐇' },
+            { id: 2, name: 'ทีมเต่า', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], icon: '🐢' },
+            { id: 3, name: 'ทีมหอยทาก', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], icon: '🐌' }
         ];
 
         let teams = defaultData;
@@ -244,10 +289,11 @@
         let currentMode = '';
         let currentMusicState = 'none';
         let isFirebaseReady = false;
-        let isFirstLoad = true;
+        let isFirstLoad = true; // ป้องกันเสียงดังตอนโหลดหน้าครั้งแรก
 
+        // Audio Refs
         const sfxScore = document.getElementById('sfx-score');
-        const sfxDisplayHit = document.getElementById('sfx-display-hit');
+        const sfxDisplayHit = document.getElementById('sfx-display-hit'); // เสียง Ora Ora สำหรับจอ Display
         const sfxWin = document.getElementById('sfx-win');
         const sfxClick = document.getElementById('sfx-click');
         const bgmNormal = document.getElementById('bgm-normal');
@@ -276,7 +322,8 @@
             window.firebaseOnValue(teamsRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (currentMode === 'display' && !isFirstLoad) {
+                    // Logic เช็คคะแนนเพิ่มเพื่อเล่นเสียงที่หน้าจอ Display
+                    if (currentMode === 'display' && !isFirstLoad) { // ไม่เล่นเสียงตอนโหลดครั้งแรก
                         let hasScoreIncreased = false;
                         data.forEach((t, i) => {
                             const prevScore = previousScores[i] || 0;
@@ -284,15 +331,18 @@
                                 hasScoreIncreased = true;
                             }
                         });
+                        
                         if (hasScoreIncreased) {
-                            playSound('display_hit'); 
+                            playSound('display_hit'); // เล่นเสียง ORA ORA
                         }
                     }
+
+                    // อัปเดตคะแนนล่าสุดเก็บไว้
                     previousScores = data.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
                     teams = data;
                     renderDisplay();
                     renderAdmin();
-                    isFirstLoad = false;
+                    isFirstLoad = false; // จบการโหลดครั้งแรก
                 }
             });
             
@@ -313,9 +363,17 @@
         }
 
         function playSound(type) {
-            const audioMap = { 'score': sfxScore, 'display_hit': sfxDisplayHit, 'win': sfxWin, 'click': sfxClick };
+            const audioMap = { 
+                'score': sfxScore,        // Admin click (ORA)
+                'display_hit': sfxDisplayHit, // Display update (ORA)
+                'win': sfxWin, 
+                'click': sfxClick 
+            };
             const audio = audioMap[type];
-            if(audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+            if(audio) { 
+                audio.currentTime = 0; 
+                audio.play().catch(() => {}); 
+            }
         }
 
         function checkAndUpdateMusic() {
@@ -371,10 +429,14 @@
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 playSound('click');
+                // กระตุ้นเสียง Display Hit (เล่นเสียงเบาๆ แล้วหยุดทันทีเพื่อให้ browser จำว่ามี interaction แล้ว)
                 sfxDisplayHit.volume = 0.01;
                 sfxDisplayHit.play().then(() => {
-                    sfxDisplayHit.pause(); sfxDisplayHit.currentTime = 0; sfxDisplayHit.volume = 0.6;
+                    sfxDisplayHit.pause();
+                    sfxDisplayHit.currentTime = 0;
+                    sfxDisplayHit.volume = 0.6; // คืนค่าความดัง
                 }).catch(() => {});
+
                 createBackgroundDecoration();
                 checkAndUpdateMusic();
                 renderDisplay();
@@ -416,30 +478,14 @@
                     rankDisplay = `<div class="text-7xl font-black text-slate-300 mr-6 w-24 text-center">#${rank}</div>`;
                 }
 
-                // Logic เลือกแสดง Emoji หรือ รูปภาพ
-                let mascotVisual = `<span class="relative block">${t.icon}</span>`;
-                let avatarVisual = `<span class="${iconSize} filter drop-shadow-lg">${t.icon}</span>`;
-                let mascotClass = '';
-
-                // ปรับขนาดรูปให้ใหญ่ขึ้น (h-32 = 8rem = 128px)
-                if (t.characterImage && t.characterImage !== '') {
-                    // รูปวิ่ง (ด้านล่าง) - ปรับขนาดใหญ่ขึ้นเป็น h-32
-                    mascotVisual = `<img src="${t.characterImage}" class="h-32 w-auto object-contain drop-shadow-xl" style="min-width: 6rem;">`;
-                    
-                    // รูปหัว (ด้านซ้าย) - ปรับขนาดใหญ่ขึ้นเป็น h-24
-                    avatarVisual = `<img src="${t.characterImage}" class="h-24 w-24 object-contain drop-shadow-xl rounded-xl bg-white/20">`;
-                    mascotClass = 'mascot-image-mode'; 
-                }
-
-                // คำนวณตำแหน่งซ้าย (ปรับลบ 5rem เพื่อให้ตัวใหญ่ๆ ไม่ออกนอกหลอด)
-                const mascotLeft = `calc(${percent}% - 5rem)`;
+                const mascotLeft = `calc(${percent}% - 4rem)`;
 
                 return `
                 <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[3rem] border-[3px] shadow-2xl px-10 py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
                     <div class="flex items-center z-10" style="width: 35%;">
                         ${rankDisplay}
                         <div class="flex items-center gap-5">
-                            ${avatarVisual}
+                            <span class="${iconSize} filter drop-shadow-lg">${t.icon}</span>
                             <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm">${t.name}</span>
                         </div>
                     </div>
@@ -451,11 +497,9 @@
                             <div class="absolute inset-0 bg-slate-200/50 rounded-full"></div>
                             <div class="finish-tape-in-bar"></div>
                             <div id="progress-fill-${t.id}" class="progress-fill-custom ${t.bg}" style="width: ${percent}%"></div>
-                            
-                            <div id="mascot-runner-${t.id}" class="mascot-on-bar ${mascotClass}" style="left: ${mascotLeft}; filter: ${t.glow}">
-                                ${mascotVisual}
+                            <div id="mascot-runner-${t.id}" class="mascot-on-bar" style="left: ${mascotLeft}; filter: ${t.glow}">
+                                <span class="relative block">${t.icon}</span>
                             </div>
-                            
                             <div id="confetti-point-${t.id}" class="absolute top-0 bottom-0 right-2 w-1 pointer-events-none"></div>
                         </div>
                     </div>
@@ -468,26 +512,11 @@
                     const scoreEl = document.getElementById(`score-text-${t.id}`);
                     const confettiPoint = document.getElementById(`confetti-point-${t.id}`);
                     const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
-                    
-                    let mascotContent = `<span class="relative block">${t.icon}</span>`;
-                    let isImageMode = false;
-                    if (t.characterImage && t.characterImage !== '') {
-                        // คงขนาดใหญ่ไว้ตอนอัปเดต
-                        mascotContent = `<img src="${t.characterImage}" class="h-32 w-auto object-contain drop-shadow-xl" style="min-width: 6rem;">`;
-                        isImageMode = true;
-                    }
 
                     if (percent >= 100) {
                         if (!mascotEl.classList.contains('winner-mascot')) {
                              mascotEl.classList.add('winner-mascot');
-                             if(isImageMode) mascotEl.classList.add('mascot-image-mode'); 
-                             
-                             mascotEl.innerHTML = `
-                                <div class="winner-badge-mini">
-                                    <span class="winner-crown-mini">👑</span>
-                                </div>
-                                ${mascotContent}
-                             `;
+                             mascotEl.innerHTML = `<div class="winner-badge-mini"><span class="winner-crown-mini">👑</span></div><span class="relative block">${t.icon}</span>`;
                         }
                         if (!t.hasFinished) {
                             t.hasFinished = true;
@@ -497,10 +526,7 @@
                         }
                     } else {
                         mascotEl.classList.remove('winner-mascot');
-                        if(isImageMode) mascotEl.classList.add('mascot-image-mode');
-                        else mascotEl.classList.remove('mascot-image-mode');
-                        
-                        mascotEl.innerHTML = mascotContent;
+                        mascotEl.innerHTML = `<span class="relative block">${t.icon}</span>`;
                         if(t.hasFinished) { t.hasFinished = false; saveToFirebase(); }
                     }
                     scoreEl.classList.remove('pop');
@@ -512,26 +538,17 @@
 
         function triggerMiniConfetti(element, colorName) {
             if(!element) return;
-            const colorsMap = { 
-                'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 
-                'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899',
-                'orange-500': '#f97316', 'teal-500': '#14b8a6'
-            };
+            const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899', 'orange-500': '#f97316', 'teal-500': '#14b8a6' };
             const colorHex = colorsMap[colorName] || '#ffd700';
-
             for(let i=0; i<20; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-finish';
                 el.style.backgroundColor = colorHex;
-                el.style.top = '50%';
-                el.style.left = '50%';
-                
+                el.style.top = '50%'; el.style.left = '50%';
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 40 + Math.random() * 60;
-                
                 el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-                
                 element.appendChild(el);
                 setTimeout(() => el.remove(), 1500);
             }
@@ -545,9 +562,7 @@
             container.innerHTML = teams.map((t, i) => `
                 <div class="bg-white rounded-3xl p-6 shadow-lg border-[3px] ${t.border}">
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="text-5xl bg-slate-50 p-4 rounded-2xl">
-                            ${t.characterImage ? `<img src="${t.characterImage}" class="h-12 w-12 object-contain">` : t.icon}
-                        </div>
+                        <div class="text-5xl bg-slate-50 p-4 rounded-2xl">${t.icon}</div>
                         <div class="flex-1">
                             <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
                             <div class="flex gap-2 flex-wrap">
@@ -558,10 +573,6 @@
                                 <select onchange="updateAnimal(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer">
                                     <option value="${t.icon}">เปลี่ยนสัตว์</option>
                                     ${ANIMAL_OPTIONS.map(a => `<option value="${a}">${a}</option>`).join('')}
-                                </select>
-                                <select onchange="updateCharacter(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 cursor-pointer font-semibold">
-                                    <option value="">เลือกตัวละคร (JoJo)</option>
-                                    ${CHARACTER_OPTIONS.map(c => `<option value="${c.value}" ${t.characterImage === c.value ? 'selected' : ''}>${c.name}</option>`).join('')}
                                 </select>
                             </div>
                         </div>
@@ -612,10 +623,8 @@
         function updateName(index, val) { teams[index].name = val; saveToFirebase(); renderDisplay(); }
         function updateColor(index, colorIdx) { if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function updateAnimal(index, animal) { teams[index].icon = animal; saveToFirebase(); renderAdmin(); renderDisplay(); }
-        function updateCharacter(index, imgUrl) { teams[index].characterImage = imgUrl; saveToFirebase(); renderAdmin(); renderDisplay(); }
         function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
-        
         function createGlobalConfetti() {
             const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899'];
             for(let i=0; i<50; i++) {
@@ -656,3 +665,4 @@
     </script>
 </body>
 </html>
+
