@@ -84,7 +84,7 @@
 
         /* Progress Bar */
         .progress-container-custom {
-            position: relative; width: 100%; height: 4rem;
+            position: relative; width: 100%; height: 4.5rem; /* เพิ่มความสูงหลอดนิดหน่อย */
             background-color: #f1f5f9; border-radius: 999px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
             margin-top: 0.5rem; overflow: visible;
@@ -111,16 +111,14 @@
 
         /* Mascot Styles */
         .mascot-on-bar {
-            position: absolute; bottom: -5px; font-size: 4rem;
+            position: absolute; bottom: -8px; font-size: 4rem;
             transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 30; pointer-events: none;
-            /* Default transform for Emoji */
             transform: scaleX(-1); 
         }
         
-        /* Class สำหรับรูปภาพ (แก้กลับด้าน) */
+        /* แก้กลับด้านเฉพาะรูปภาพ */
         .mascot-image-mode img {
-            /* รูปภาพมักจะหันหน้าถูกแล้ว ไม่ต้องกลับด้านเหมือน Emoji */
             transform: scaleX(-1); 
         }
 
@@ -135,16 +133,15 @@
         }
         
         .winner-badge-mini {
-            position: absolute; top: -45px; left: 50%;
-            transform: translateX(-50%) scaleX(-1); /* กลับด้าน badge ให้ตรง */
+            position: absolute; top: -50px; left: 50%; /* ขยับมงกุฎขึ้น */
+            transform: translateX(-50%) scaleX(-1);
             display: flex; flex-direction: column; align-items: center; white-space: nowrap;
         }
-        /* ถ้าเป็นโหมดรูปภาพ ต้องแก้ transform badge */
         .mascot-image-mode .winner-badge-mini {
              transform: translateX(-50%) scaleX(1);
         }
 
-        .winner-crown-mini { font-size: 2rem; animation: medalFloat 2s infinite; }
+        .winner-crown-mini { font-size: 2.5rem; animation: medalFloat 2s infinite; } /* มงกุฎใหญ่ขึ้น */
         .ranking-card { min-height: 220px; }
         .score-section { min-width: 280px; }
     </style>
@@ -213,7 +210,7 @@
         
         const ANIMAL_OPTIONS = ['🦫', '🐇', '🐢', '🐌', '🐘', '🦁', '🐯', '🐼', '🦒', '🦏'];
         
-        // ** รายชื่อตัวละคร JoJo (ลิงก์ไปยัง GitHub) **
+        // ลิงก์ไฟล์รูปภาพจาก GitHub
         const GH_REPO = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/";
         const CHARACTER_OPTIONS = [
             { name: 'ไม่ใช้รูปภาพ', value: '' },
@@ -374,14 +371,10 @@
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
                 playSound('click');
-                // กระตุ้นเสียง Display Hit
                 sfxDisplayHit.volume = 0.01;
                 sfxDisplayHit.play().then(() => {
-                    sfxDisplayHit.pause();
-                    sfxDisplayHit.currentTime = 0;
-                    sfxDisplayHit.volume = 0.6;
+                    sfxDisplayHit.pause(); sfxDisplayHit.currentTime = 0; sfxDisplayHit.volume = 0.6;
                 }).catch(() => {});
-
                 createBackgroundDecoration();
                 checkAndUpdateMusic();
                 renderDisplay();
@@ -423,18 +416,23 @@
                     rankDisplay = `<div class="text-7xl font-black text-slate-300 mr-6 w-24 text-center">#${rank}</div>`;
                 }
 
-                const mascotLeft = `calc(${percent}% - 4rem)`;
-                
                 // Logic เลือกแสดง Emoji หรือ รูปภาพ
                 let mascotVisual = `<span class="relative block">${t.icon}</span>`;
                 let avatarVisual = `<span class="${iconSize} filter drop-shadow-lg">${t.icon}</span>`;
                 let mascotClass = '';
 
+                // ปรับขนาดรูปให้ใหญ่ขึ้น (h-32 = 8rem = 128px)
                 if (t.characterImage && t.characterImage !== '') {
-                    mascotVisual = `<img src="${t.characterImage}" class="h-20 w-20 object-contain drop-shadow-md" style="min-width: 5rem;">`;
-                    avatarVisual = `<img src="${t.characterImage}" class="h-16 w-16 object-contain drop-shadow-lg">`;
-                    mascotClass = 'mascot-image-mode'; // เพิ่ม class พิเศษเพื่อจัดการการกลับด้าน
+                    // รูปวิ่ง (ด้านล่าง) - ปรับขนาดใหญ่ขึ้นเป็น h-32
+                    mascotVisual = `<img src="${t.characterImage}" class="h-32 w-auto object-contain drop-shadow-xl" style="min-width: 6rem;">`;
+                    
+                    // รูปหัว (ด้านซ้าย) - ปรับขนาดใหญ่ขึ้นเป็น h-24
+                    avatarVisual = `<img src="${t.characterImage}" class="h-24 w-24 object-contain drop-shadow-xl rounded-xl bg-white/20">`;
+                    mascotClass = 'mascot-image-mode'; 
                 }
+
+                // คำนวณตำแหน่งซ้าย (ปรับลบ 5rem เพื่อให้ตัวใหญ่ๆ ไม่ออกนอกหลอด)
+                const mascotLeft = `calc(${percent}% - 5rem)`;
 
                 return `
                 <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[3rem] border-[3px] shadow-2xl px-10 py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
@@ -471,18 +469,17 @@
                     const confettiPoint = document.getElementById(`confetti-point-${t.id}`);
                     const percent = Math.min(100, (t.score / TARGET_SCORE) * 100);
                     
-                    // สร้างเนื้อหา Mascot (เช็คอีกทีตอน update เพื่อความชัวร์)
                     let mascotContent = `<span class="relative block">${t.icon}</span>`;
                     let isImageMode = false;
                     if (t.characterImage && t.characterImage !== '') {
-                        mascotContent = `<img src="${t.characterImage}" class="h-20 w-20 object-contain drop-shadow-md" style="min-width: 5rem;">`;
+                        // คงขนาดใหญ่ไว้ตอนอัปเดต
+                        mascotContent = `<img src="${t.characterImage}" class="h-32 w-auto object-contain drop-shadow-xl" style="min-width: 6rem;">`;
                         isImageMode = true;
                     }
 
                     if (percent >= 100) {
                         if (!mascotEl.classList.contains('winner-mascot')) {
                              mascotEl.classList.add('winner-mascot');
-                             // ถ้าเป็น Image Mode ต้องใส่ class เพื่อแก้กลับด้าน badge
                              if(isImageMode) mascotEl.classList.add('mascot-image-mode'); 
                              
                              mascotEl.innerHTML = `
@@ -515,17 +512,26 @@
 
         function triggerMiniConfetti(element, colorName) {
             if(!element) return;
-            const colorsMap = { 'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899', 'orange-500': '#f97316', 'teal-500': '#14b8a6' };
+            const colorsMap = { 
+                'red-500': '#ef4444', 'blue-500': '#3b82f6', 'green-500': '#22c55e', 
+                'yellow-400': '#eab308', 'purple-500': '#a855f7', 'pink-500': '#ec4899',
+                'orange-500': '#f97316', 'teal-500': '#14b8a6'
+            };
             const colorHex = colorsMap[colorName] || '#ffd700';
+
             for(let i=0; i<20; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-finish';
                 el.style.backgroundColor = colorHex;
-                el.style.top = '50%'; el.style.left = '50%';
+                el.style.top = '50%';
+                el.style.left = '50%';
+                
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 40 + Math.random() * 60;
+                
                 el.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 el.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                
                 element.appendChild(el);
                 setTimeout(() => el.remove(), 1500);
             }
@@ -606,7 +612,7 @@
         function updateName(index, val) { teams[index].name = val; saveToFirebase(); renderDisplay(); }
         function updateColor(index, colorIdx) { if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function updateAnimal(index, animal) { teams[index].icon = animal; saveToFirebase(); renderAdmin(); renderDisplay(); }
-        function updateCharacter(index, imgUrl) { teams[index].characterImage = imgUrl; saveToFirebase(); renderAdmin(); renderDisplay(); } // ฟังก์ชันใหม่สำหรับเปลี่ยนรูป
+        function updateCharacter(index, imgUrl) { teams[index].characterImage = imgUrl; saveToFirebase(); renderAdmin(); renderDisplay(); }
         function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
         
