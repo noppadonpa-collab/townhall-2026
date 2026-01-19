@@ -246,8 +246,8 @@
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
     
-    <audio id="bgm-before-score" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/OST%20Stardust%20Crusaders%20World%20Track%2019%20-%20Travelers%20Who%20Rest.mp3"></audio>
-    <audio id="bgm-normal" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ss4%20Gloden%20Wind.mp3"></audio>
+    <audio id="bgm-before-score" loop></audio>
+    <audio id="bgm-normal" loop></audio>
     <audio id="bgm-excited" loop src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3"></audio>
 
     <div id="bg-decorations"></div>
@@ -373,6 +373,16 @@
 
         sfxScore.volume = 0.5; sfxDisplayHit.volume = 0.6; sfxWin.volume = 0.5; 
         sfxClick.volume = 0.3; bgmBeforeScore.volume = 0.4; bgmNormal.volume = 0.4; bgmExcited.volume = 0.5;
+
+        // ตั้งค่า URL ของเสียงเพลง - ตรวจสอบว่าชื่อไฟล์ตรงกับที่อัปโหลดหรือไม่
+        bgmBeforeScore.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/OST%20Stardust%20Crusaders%20World%20Track%2019%20-%20Travelers%20Who%20Rest.mp3";
+        bgmNormal.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ss4%20Gloden%20Wind.mp3";
+        
+        // ทดสอบโหลดเสียง
+        console.log("Testing audio files:");
+        bgmBeforeScore.addEventListener('error', () => console.error('Error loading bgm-before-score'));
+        bgmNormal.addEventListener('error', () => console.error('Error loading bgm-normal'));
+        bgmExcited.addEventListener('error', () => console.error('Error loading bgm-excited'));
 
         function waitForFirebase() {
             return new Promise((resolve) => {
