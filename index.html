@@ -61,12 +61,12 @@
              :root { --card-padding: 1.5rem; --font-base: 18px; }
         }
 
-        /* BACKGROUND FIX: Ensure gradient is always there */
+        /* BACKGROUND FIX */
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #1e293b; 
             min-height: 100vh;
-            background-attachment: fixed; /* Fix background scrolling */
+            background-attachment: fixed;
         }
 
         /* Mode Styles */
@@ -129,6 +129,71 @@
         .text-responsive-score { font-size: clamp(2rem, 5vw, 4.5rem); }
 
         .ranking-card { padding: var(--card-padding); }
+
+        /* --- ULTIMATE EFFECT STYLES --- */
+        #ultimate-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.1s;
+        }
+        
+        /* Flash Background */
+        .flash-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: white;
+            animation: flashAnim 0.8s ease-out forwards;
+        }
+
+        /* Lightning */
+        .lightning-effect {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.8) 45%, transparent 50%),
+                linear-gradient(-45deg, transparent 40%, rgba(255,255,255,0.8) 45%, transparent 50%);
+            background-size: 200% 200%;
+            mix-blend-mode: overlay;
+            opacity: 0;
+            animation: lightningAnim 0.5s ease-out infinite;
+        }
+
+        /* Character Cut-in */
+        .cut-in-character {
+            position: relative; z-index: 10;
+            transform: scale(0.5) translateX(-100%);
+            opacity: 0;
+            animation: cutInAnim 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+            filter: drop-shadow(0 0 50px rgba(255,255,255,0.8));
+        }
+        .cut-in-character img {
+            max-height: 80vh; max-width: 90vw;
+            object-fit: contain;
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0.8; background-color: white; }
+            10% { opacity: 0; }
+            20% { opacity: 0.5; background-color: #fbbf24; } /* Gold tint */
+            30% { opacity: 0; }
+            40% { opacity: 0.3; background-color: white; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes lightningAnim {
+            0% { background-position: 0% 0%; opacity: 0; }
+            20% { background-position: 100% 100%; opacity: 1; }
+            21% { opacity: 0; }
+            40% { background-position: 0% 100%; opacity: 0.5; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes cutInAnim {
+            0% { transform: scale(1.5) translateX(-50%); opacity: 0; }
+            10% { transform: scale(1) translateX(0); opacity: 1; filter: brightness(2); }
+            15% { filter: brightness(1); }
+            80% { transform: scale(1.1) translateX(20px); opacity: 1; }
+            100% { transform: scale(1.5) translateX(100%); opacity: 0; }
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -137,11 +202,18 @@
     <audio id="sfx-display-hit" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
-    
-    <audio id="bgm-normal" loop></audio>
+    <audio id="sfx-thunder" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/explosion.wav"></audio> <audio id="bgm-normal" loop></audio>
     <audio id="bgm-excited" loop></audio>
 
     <div id="bg-decorations"></div>
+
+    <div id="ultimate-overlay" class="hidden">
+        <div id="effect-flash" class="flash-bg"></div>
+        <div id="effect-lightning" class="lightning-effect"></div>
+        <div id="effect-char" class="cut-in-character">
+            <img id="ultimate-img" src="" alt="Ultimate">
+        </div>
+    </div>
 
     <div id="mode-selector" class="fixed inset-0 z-50 bg-gradient-to-br from-purple-600 to-blue-600 flex flex-col items-center justify-center space-y-8 p-4">
         <div class="text-center space-y-2">
@@ -262,16 +334,18 @@
         let isFirebaseReady = false;
         let isFirstLoad = true;
         let audioSettings = { volume: 0.5, isMuted: false };
+        let shownUltimateTeams = {}; // Track which teams have shown the effect
 
         const sfxScore = document.getElementById('sfx-score');
         const sfxDisplayHit = document.getElementById('sfx-display-hit');
         const sfxWin = document.getElementById('sfx-win');
         const sfxClick = document.getElementById('sfx-click');
+        const sfxThunder = document.getElementById('sfx-thunder'); // New SFX
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
         sfxScore.volume = 0.5; sfxDisplayHit.volume = 0.6; sfxWin.volume = 0.5; 
-        sfxClick.volume = 0.3; 
+        sfxClick.volume = 0.3; sfxThunder.volume = 0.7;
         
         bgmNormal.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ss4%20Golden%20Wind.mp3";
         bgmExcited.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3";
@@ -297,16 +371,28 @@
             window.firebaseOnValue(teamsRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (currentMode === 'display' && !isFirstLoad) {
+                    if (currentMode === 'display') {
                         let hasScoreIncreased = false;
+                        
                         data.forEach((t, i) => {
                             const prevScore = previousScores[i] || 0;
+                            // Check score increase
                             if (t.score > prevScore) {
                                 hasScoreIncreased = true;
                             }
+                            
+                            // *** NEW: Check Ultimate Condition (Hit 500) ***
+                            if (t.score >= 500 && prevScore < 500 && !shownUltimateTeams[t.id]) {
+                                triggerUltimateEffect(t);
+                                shownUltimateTeams[t.id] = true; // prevent repeat
+                            }
+                            // Reset flag if score drops below 500 (optional)
+                            if (t.score < 500) {
+                                shownUltimateTeams[t.id] = false;
+                            }
                         });
                         
-                        if (hasScoreIncreased) {
+                        if (hasScoreIncreased && !isFirstLoad) {
                             playSound('display_hit');
                         }
                     }
@@ -354,7 +440,8 @@
                 'score': sfxScore,
                 'display_hit': sfxDisplayHit,
                 'win': sfxWin, 
-                'click': sfxClick 
+                'click': sfxClick,
+                'thunder': sfxThunder
             };
             const audio = audioMap[type];
             if(audio) { 
@@ -370,6 +457,7 @@
             sfxScore.volume = effectiveVolume;
             sfxDisplayHit.volume = effectiveVolume;
             sfxWin.volume = effectiveVolume;
+            sfxThunder.volume = effectiveVolume;
         }
 
         function updateAdminAudioUI() {
@@ -450,6 +538,39 @@
                 particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
                 document.body.appendChild(particle);
                 setTimeout(() => particle.remove(), 1300);
+            }
+        }
+
+        // *** NEW: ULTIMATE EFFECT FUNCTION ***
+        function triggerUltimateEffect(team) {
+            const overlay = document.getElementById('ultimate-overlay');
+            const img = document.getElementById('ultimate-img');
+            
+            if(overlay && img) {
+                img.src = team.characterImg;
+                overlay.classList.remove('hidden');
+                overlay.style.opacity = '1';
+                
+                playSound('thunder'); // Play sound effect
+
+                // Reset animation
+                const charDiv = document.getElementById('effect-char');
+                const flashDiv = document.getElementById('effect-flash');
+                charDiv.style.animation = 'none';
+                charDiv.offsetHeight; /* trigger reflow */
+                charDiv.style.animation = 'cutInAnim 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards';
+                
+                flashDiv.style.animation = 'none';
+                flashDiv.offsetHeight;
+                flashDiv.style.animation = 'flashAnim 0.8s ease-out forwards';
+
+                // Hide after animation
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 200);
+                }, 1500);
             }
         }
 
