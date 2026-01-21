@@ -41,24 +41,12 @@
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #1e293b; 
-            overflow: hidden; 
-            position: relative;
-        }
-        
-        /* Responsive adjustments for Display View */
-        #display-view {
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
         }
 
-        @media (min-width: 1024px) {
-            #display-main-content {
-                transform: scale(0.85);
-            }
-        }
+        /* Mode Specific Styles */
+        body.mode-display { overflow: hidden; height: 100vh; }
+        body.mode-admin { overflow-y: auto; height: auto; }
         
         .bg-decoration {
             position: absolute;
@@ -81,18 +69,12 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
         
-        @keyframes firework {
-            0% { transform: translate(0, 0) scale(0); opacity: 1; }
-            50% { opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
-        }
-        
         .firework-particle {
             position: absolute;
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            animation: firework 1.5s ease-out forwards;
+            pointer-events: none;
         }
 
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -121,18 +103,23 @@
             top: 20%;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
         .progress-container-custom {
             position: relative;
             width: 100%;
-            height: 3.5rem;
+            height: 3rem; /* Adjusted for mobile */
             background-color: #f1f5f9;
             border-radius: 999px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
             margin-top: 0.5rem;
             overflow: visible;
         }
+        @media (min-width: 768px) { .progress-container-custom { height: 3.5rem; } }
 
         .progress-fill-custom {
             height: 100%;
@@ -156,10 +143,7 @@
         .finish-tape-in-bar {
             position: absolute;
             right: 10px;
-            top: 0;
-            bottom: 0;
-            width: 24px;
-            z-index: 20;
+            top: 0; bottom: 0; width: 24px; z-index: 20;
             background-image: 
                 linear-gradient(45deg, #334155 25%, transparent 25%), 
                 linear-gradient(-45deg, #334155 25%, transparent 25%), 
@@ -183,10 +167,10 @@
         }
 
         .mascot-on-bar img {
-            width: 70px;
-            height: 70px;
+            width: 60px; height: 60px;
             object-fit: contain;
         }
+        @media (min-width: 768px) { .mascot-on-bar img { width: 80px; height: 80px; } }
 
         .confetti-finish {
             position: absolute; width: 8px; height: 8px; z-index: 50;
@@ -200,7 +184,7 @@
         
         .winner-badge-mini {
             position: absolute;
-            top: -30px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%) scaleX(-1);
             display: flex;
@@ -210,12 +194,9 @@
         }
         .winner-crown-mini { font-size: 1.5rem; animation: medalFloat 2s infinite; }
 
-        .ranking-card { min-height: 180px; }
-        .score-section { min-width: 200px; }
-
         .character-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
             gap: 8px;
             margin-top: 12px;
         }
@@ -237,7 +218,7 @@
 
         .character-option img {
             width: 100%;
-            height: 70px;
+            height: 60px;
             object-fit: contain;
             border-radius: 8px;
         }
@@ -247,22 +228,18 @@
             background: #dcfce7;
         }
 
-        /* Mobile Admin Fixes */
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .ranking-card { padding: 1.5rem; min-height: auto; }
-            .score-section { width: 100% !important; margin-top: 1rem; }
-            #display-main-content { padding: 1rem; width: 100%; }
-            .ranking-card > div:first-child { width: 100% !important; margin-bottom: 0.5rem; }
+            .ranking-card { padding: 1rem; }
+            .ranking-card > div:first-child { width: 100% !important; margin-bottom: 1rem; }
+            .ranking-card > div:last-child { width: 100% !important; padding-right: 0 !important; }
             .ranking-card { flex-direction: column; align-items: stretch; }
-            .medal-icon { margin-right: 0.5rem; font-size: 4rem; }
-            .mascot-on-bar img { width: 50px; height: 50px; }
-            .winner-badge-mini { top: -25px; }
-            .admin-header { flex-direction: column; gap: 1rem; }
-            .admin-header input { width: 100%; }
+            .medal-icon { margin-right: 0.5rem; font-size: 3.5rem !important; }
+            .admin-container { padding-bottom: 4rem; }
         }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col">
+<body class="flex flex-col">
 
     <audio id="sfx-score" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
     <audio id="sfx-display-hit" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
@@ -291,9 +268,9 @@
         </div>
     </div>
 
-    <div id="display-view" class="hidden w-full h-full relative">
+    <div id="display-view" class="hidden w-full h-full relative flex-col">
         <main id="display-main-content" class="w-full max-w-[1400px] p-4 md:p-8 flex flex-col z-10 h-full relative overflow-hidden gap-2 mx-auto">
-            <header class="text-left relative pl-2 flex flex-col md:flex-row justify-between items-start md:items-end mb-4">
+            <header class="text-left relative pl-2 flex flex-col md:flex-row justify-between items-start md:items-end mb-4 flex-shrink-0">
                 <div>
                     <h1 id="display-title" class="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none drop-shadow-lg">Townhall 2026</h1>
                     <div class="h-2 md:h-3 w-32 md:w-48 bg-gradient-to-r from-yellow-400 to-pink-500 mt-2 md:mt-4 rounded-full"></div>
@@ -303,29 +280,30 @@
                 </div>
             </header>
 
-            <div id="ranking-list" class="flex-1 flex flex-col justify-center gap-4 md:gap-6 my-2 overflow-y-auto px-2 md:px-4 custom-scrollbar pb-8">
+            <div id="ranking-list" class="flex-1 flex flex-col justify-start gap-4 md:gap-6 my-2 overflow-y-auto px-2 md:px-4 custom-scrollbar pb-8">
             </div>
         </main>
     </div>
 
-    <div id="admin-view" class="hidden h-full overflow-y-auto bg-slate-100">
+    <div id="admin-view" class="hidden w-full min-h-screen bg-slate-100 relative">
         <div class="max-w-6xl mx-auto p-4 md:p-8">
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 md:p-6 mb-6 flex flex-col md:flex-row justify-between items-center sticky top-2 z-30 admin-header gap-4">
-                <div class="flex items-center gap-2">
-                    <h1 class="text-2xl font-bold text-slate-800">⚙️ ควบคุม</h1>
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col md:flex-row justify-between items-center sticky top-4 z-40 gap-4">
+                <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2">⚙️ ควบคุม</h1>
+                    
+                    <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <button onclick="toggleMute()" id="mute-btn" class="text-xl hover:scale-110 transition-transform p-1">🔊</button>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-20 md:w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolume(this.value)">
+                    </div>
                 </div>
                 
-                <div class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 w-full md:w-auto">
-                    <button onclick="toggleMute()" id="mute-btn" class="text-2xl hover:scale-110 transition-transform">🔊</button>
-                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-24 md:w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolume(this.value)">
-                </div>
-
                 <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                      <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg transition-all w-full md:w-64" placeholder="ชื่อกิจกรรม">
                     <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all whitespace-nowrap">🗑️ ล้างคะแนน</button>
                 </div>
             </div>
-            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pb-10"></div>
+
+            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-10"></div>
         </div>
     </div>
 
@@ -403,7 +381,6 @@
         sfxScore.volume = 0.5; sfxDisplayHit.volume = 0.6; sfxWin.volume = 0.5; 
         sfxClick.volume = 0.3; 
         
-        // Music Sources - Adjusted as requested
         bgmNormal.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ss4%20Golden%20Wind.mp3";
         bgmExcited.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3";
 
@@ -495,12 +472,9 @@
         }
 
         function updateAudioFromSettings() {
-            // Update volumes for all tracks
             const effectiveVolume = audioSettings.isMuted ? 0 : audioSettings.volume;
             bgmNormal.volume = effectiveVolume;
             bgmExcited.volume = effectiveVolume;
-            
-            // Note: SFX volume is usually slightly higher, but we scale it relative to BGM
             sfxScore.volume = effectiveVolume;
             sfxDisplayHit.volume = effectiveVolume;
             sfxWin.volume = effectiveVolume;
@@ -516,11 +490,10 @@
             }
         }
 
-        // Logic for Admin controls
         function toggleMute() {
             const newMuteState = !audioSettings.isMuted;
             const newSettings = { ...audioSettings, isMuted: newMuteState };
-            updateAudioSettings(newSettings); // This triggers Firebase update -> loops back to updateAudioFromSettings
+            updateAudioSettings(newSettings);
         }
 
         function updateVolume(val) {
@@ -532,27 +505,21 @@
             if(currentMode !== 'display') return;
             
             const maxScore = Math.max(...teams.map(t => t.score));
-            
-            // Logic: 0 - 499 = Normal (ss4), 500+ = Excited (Conan)
             const targetState = maxScore >= EXCITED_THRESHOLD ? 'excited' : 'normal';
 
             if(currentMusicState !== targetState) {
                 if(targetState === 'excited') {
-                    // Play Excited
                     bgmNormal.pause();
                     bgmExcited.currentTime = 0;
                     bgmExcited.play().catch(() => {});
                 } else {
-                    // Play Normal (includes start from 0)
                     bgmExcited.pause();
-                    // Don't reset if already playing unless switching back
                     if(bgmNormal.paused) {
                         bgmNormal.play().catch(() => {});
                     }
                 }
                 currentMusicState = targetState;
             } else {
-                // Determine if nothing is playing (e.g. first load)
                 if (targetState === 'normal' && bgmNormal.paused) {
                      bgmNormal.play().catch(() => {});
                 }
@@ -597,9 +564,15 @@
         function enterMode(mode) {
             currentMode = mode;
             document.getElementById('mode-selector').classList.add('hidden');
+            
+            // Toggle body classes for scroll management
             if(mode === 'display') {
+                document.body.classList.add('mode-display');
+                document.body.classList.remove('mode-admin');
                 document.getElementById('display-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('flex');
+                document.getElementById('admin-view').classList.add('hidden');
+                
                 playSound('click');
                 sfxDisplayHit.volume = 0.01;
                 sfxDisplayHit.play().then(() => {
@@ -612,10 +585,14 @@
                 checkAndUpdateMusic();
                 renderDisplay();
             } else {
+                document.body.classList.add('mode-admin');
+                document.body.classList.remove('mode-display');
                 document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('display-view').classList.add('hidden');
+                
                 playSound('click');
                 renderAdmin();
-                updateAdminAudioUI(); // sync UI with current state
+                updateAdminAudioUI();
             }
         }
 
@@ -636,7 +613,6 @@
                 let rankDisplay = '';
                 let containerClass = 'bg-white/95 border-slate-200 backdrop-blur-sm';
                 
-                // Adjusted Text Sizes for Responsive
                 const scoreSize = 'text-5xl md:text-7xl'; 
                 const nameSize = 'text-2xl md:text-4xl';
 
@@ -653,15 +629,15 @@
                     rankDisplay = `<div class="text-5xl md:text-7xl font-black text-slate-300 mr-2 md:mr-6 w-16 md:w-24 text-center">#${rank}</div>`;
                 }
 
-                const mascotLeft = `calc(${percent}% - 3rem)`;
+                const mascotLeft = `calc(${percent}% - 2rem)`; // Adjust for mobile
 
                 return `
                 <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[2rem] md:rounded-[3rem] border-[3px] shadow-2xl px-4 md:px-10 py-4 md:py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
                     <div class="flex items-center z-10 w-full md:w-[35%]">
                         ${rankDisplay}
-                        <div class="flex items-center gap-3 md:gap-5 flex-1">
-                            <img src="${t.characterImg}" alt="${t.name}" class="w-14 h-14 md:w-20 md:h-20 object-contain filter drop-shadow-lg" onerror="this.style.display='none'">
-                            <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm truncate">${t.name}</span>
+                        <div class="flex items-center gap-3 md:gap-5 flex-1 min-w-0">
+                            <img src="${t.characterImg}" alt="${t.name}" class="w-14 h-14 md:w-20 md:h-20 object-contain filter drop-shadow-lg flex-shrink-0" onerror="this.style.display='none'">
+                            <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm truncate w-full">${t.name}</span>
                         </div>
                     </div>
                     <div class="flex flex-col justify-center z-10 h-full relative score-section w-full md:w-[60%]">
@@ -737,7 +713,7 @@
             container.innerHTML = teams.map((t, i) => `
                 <div class="bg-white rounded-3xl p-4 md:p-6 shadow-lg border-[3px] ${t.border}">
                     <div class="flex items-center gap-4 mb-4 md:mb-6">
-                        <div class="text-4xl md:text-5xl bg-slate-50 p-3 md:p-4 rounded-2xl">
+                        <div class="text-4xl md:text-5xl bg-slate-50 p-3 md:p-4 rounded-2xl flex-shrink-0">
                             <img src="${t.characterImg}" alt="${t.name}" class="w-12 h-12 md:w-16 md:h-16 object-contain" onerror="this.style.display='none'">
                         </div>
                         <div class="flex-1 min-w-0">
@@ -767,18 +743,20 @@
                          <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div class="text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-4">
-                        <button onclick="addScore(${i}, 30)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+30</button>
-                        <button onclick="addScore(${i}, 50)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+50</button>
-                        <button onclick="addScore(${i}, 70)" class="py-3 md:py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all text-lg">+70</button>
-                         <button onclick="addScore(${i}, 100)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+100</button>
+                    <div class="grid grid-cols-4 gap-2 md:gap-3 mb-4">
+                        <button onclick="addScore(${i}, 30)" class="col-span-1 py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+30</button>
+                        <button onclick="addScore(${i}, 50)" class="col-span-1 py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+50</button>
+                        <button onclick="addScore(${i}, 70)" class="col-span-2 py-3 md:py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all text-xl md:text-2xl">+70</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 md:gap-3 mb-4">
+                         <button onclick="addScore(${i}, 100)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+100</button>
+                         <button onclick="addScore(${i}, -100)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base md:text-lg">-100</button>
                     </div>
                     
-                    <div class="grid grid-cols-4 gap-2 md:gap-3 mb-4">
+                    <div class="grid grid-cols-3 gap-2 md:gap-3 mb-4">
                         <button onclick="addScore(${i}, -30)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-30</button>
                         <button onclick="addScore(${i}, -50)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-50</button>
                         <button onclick="addScore(${i}, -70)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-70</button>
-                        <button onclick="addScore(${i}, -100)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-100</button>
                     </div>
                        
                     <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
@@ -815,27 +793,7 @@
         function updateCharacter(index, charImg) { teams[index].characterImg = charImg; saveToFirebase(); renderAdmin(); renderDisplay(); }
         function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
-        function createGlobalConfetti() {
-            const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899'];
-            for(let i=0; i<50; i++) {
-                const el = document.createElement('div');
-                el.className = 'confetti-general';
-                el.style.position = 'fixed';
-                el.style.left = Math.random()*100 + 'vw';
-                el.style.top = '-20px';
-                el.style.width = '10px';
-                el.style.height = '10px';
-                el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-                el.style.borderRadius = '50%';
-                el.style.zIndex = '100';
-                el.style.pointerEvents = 'none';
-                el.style.animation = 'fall 2s linear forwards';
-                el.style.animationDelay = Math.random() + 's';
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 2500);
-            }
-        }
-
+        
         const style = document.createElement('style');
         style.textContent = `
             @keyframes fall {
