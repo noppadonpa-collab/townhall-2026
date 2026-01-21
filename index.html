@@ -38,42 +38,40 @@
         }
     </script>
     <style>
-        /* Responsive Base Settings - ปรับลดขนาดลงเล็กน้อยเพื่อให้พอดีจอ 100% */
+        /* Responsive Base Settings */
         :root {
-            --card-padding: 0.5rem;
+            --card-padding: 0.6rem;
             --font-base: 14px;
         }
 
-        /* Mobile First */
         body { font-size: var(--font-base); }
         .responsive-container { width: 100%; padding: 0.5rem; }
 
-        /* Tablet (iPad) */
         @media screen and (min-width: 768px) {
             :root { --card-padding: 1rem; --font-base: 15px; }
-            .responsive-container { width: 95%; margin: 0 auto; }
+            .responsive-container { width: 96%; margin: 0 auto; }
         }
 
-        /* Desktop - ปรับขนาดให้กระชับขึ้น */
         @media screen and (min-width: 1024px) {
             :root { --card-padding: 1.2rem; --font-base: 16px; }
-            .responsive-container { width: 95%; max-width: 1300px; margin: 0 auto; }
+            .responsive-container { width: 98%; max-width: 1400px; margin: 0 auto; }
         }
 
-        /* Large Desktop */
         @media screen and (min-width: 1440px) {
              :root { --card-padding: 1.5rem; --font-base: 18px; }
         }
 
+        /* BACKGROUND FIX: Ensure gradient is always there */
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #1e293b; 
             min-height: 100vh;
+            background-attachment: fixed; /* Fix background scrolling */
         }
 
         /* Mode Styles */
-        body.mode-display { overflow: hidden; height: 100vh; width: 100vw; } /* บังคับไม่ให้มี Scrollbar */
-        body.mode-admin { overflow-y: auto; height: auto; }
+        body.mode-display { overflow: hidden; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; }
+        body.mode-admin { overflow-y: auto; height: auto; position: relative; }
         
         /* Decorations */
         .bg-decoration { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3; pointer-events: none; z-index: 0; }
@@ -81,7 +79,6 @@
         @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
         .firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; }
 
-        /* Animations */
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-anim.pop { transform: scale(1.3); }
         @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -89,18 +86,17 @@
         @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.2); } }
         .floating-score { position: absolute; font-size: 3rem; font-weight: 900; animation: floatUpFade 1.5s ease-out forwards; pointer-events: none; z-index: 60; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 2px white; right: 40px; top: 20%; }
 
-        /* Scrollbar */
+        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
 
-        /* Progress Bar */
         .progress-container-custom {
-            position: relative; width: 100%; height: 2.2rem; /* ลดความสูงลงเล็กน้อย */
+            position: relative; width: 100%; height: 2.8rem; 
             background-color: #f1f5f9; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
             margin-top: 0.25rem; overflow: visible;
         }
-        @media (min-width: 768px) { .progress-container-custom { height: 3rem; } }
+        @media (min-width: 768px) { .progress-container-custom { height: 4rem; } }
 
         .progress-fill-custom { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 10; }
         .progress-fill-custom::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 3s infinite; border-radius: 999px; }
@@ -108,29 +104,29 @@
 
         .finish-tape-in-bar { position: absolute; right: 10px; top: 0; bottom: 0; width: 24px; z-index: 20; background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%); background-size: 12px 12px; background-position: 0 0, 0 6px, 6px -6px, -6px 0px; opacity: 0.8; border-left: 1px dashed rgba(255,255,255,0.5); border-right: 1px dashed rgba(255,255,255,0.5); }
         
-        .mascot-on-bar { position: absolute; bottom: -5px; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 30; transform: scaleX(-1); filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25)); pointer-events: none; }
-        .mascot-on-bar img { width: 45px; height: 45px; object-fit: contain; }
-        @media (min-width: 768px) { .mascot-on-bar img { width: 70px; height: 70px; } }
+        /* Mascot on Bar */
+        .mascot-on-bar { position: absolute; bottom: -8px; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 30; transform: scaleX(-1); pointer-events: none; }
+        .mascot-on-bar img { width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); }
+        @media (min-width: 768px) { .mascot-on-bar img { width: 150px; height: 150px; bottom: -20px; } }
 
         .confetti-finish { position: absolute; width: 8px; height: 8px; z-index: 50; border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none; }
         @keyframes finishExplosion { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; } }
         
-        .winner-badge-mini { position: absolute; top: -20px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
-        .winner-crown-mini { font-size: 1.2rem; animation: medalFloat 2s infinite; }
+        .winner-badge-mini { position: absolute; top: -25px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
+        .winner-crown-mini { font-size: 1.5rem; animation: medalFloat 2s infinite; }
 
-        /* Character Grid */
         .character-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; margin-top: 12px; }
         .character-option { cursor: pointer; border: 3px solid transparent; border-radius: 12px; padding: 4px; transition: all 0.3s; background: #f8fafc; }
         .character-option:hover { border-color: #3b82f6; transform: scale(1.05); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         .character-option img { width: 100%; height: 50px; object-fit: contain; border-radius: 8px; }
         .character-option.selected { border-color: #22c55e; background: #dcfce7; }
 
-        /* Dynamic Text Sizes - ปรับ Clamp ให้เล็กลงเล็กน้อย */
-        .text-responsive-title { font-size: clamp(1.8rem, 4vw, 4rem); }
+        /* Dynamic Text Sizes */
+        .text-responsive-title { font-size: clamp(1.8rem, 4vw, 4.5rem); }
         .text-responsive-target { font-size: clamp(0.9rem, 2vw, 1.8rem); }
-        .text-responsive-rank { font-size: clamp(2rem, 5vw, 4rem); }
-        .text-responsive-name { font-size: clamp(1.1rem, 2.2vw, 2.2rem); }
-        .text-responsive-score { font-size: clamp(1.8rem, 4.5vw, 4rem); }
+        .text-responsive-rank { font-size: clamp(2rem, 5vw, 4.5rem); }
+        .text-responsive-name { font-size: clamp(1.2rem, 2.5vw, 2.8rem); }
+        .text-responsive-score { font-size: clamp(2rem, 5vw, 4.5rem); }
 
         .ranking-card { padding: var(--card-padding); }
     </style>
@@ -181,7 +177,7 @@
         </main>
     </div>
 
-    <div id="admin-view" class="hidden w-full min-h-screen bg-slate-100 relative">
+    <div id="admin-view" class="hidden w-full min-h-screen relative">
         <div class="responsive-container py-4">
             <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col md:flex-row justify-between items-center sticky top-4 z-40 gap-4">
                 <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
@@ -461,7 +457,6 @@
             currentMode = mode;
             document.getElementById('mode-selector').classList.add('hidden');
             
-            // Toggle body classes for scroll management
             if(mode === 'display') {
                 document.body.classList.add('mode-display');
                 document.body.classList.remove('mode-admin');
@@ -522,23 +517,22 @@
                     rankDisplay = `<div class="text-responsive-rank font-black text-slate-300 mr-2 md:mr-6 w-16 md:w-24 text-center leading-none">#${rank}</div>`;
                 }
 
-                const mascotLeft = `calc(${percent}% - 2rem)`; // Adjust for mobile
+                const mascotLeft = `calc(${percent}% - 3rem)`; 
 
                 return `
                 <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[2rem] border-[3px] shadow-2xl flex items-center justify-between transition-all duration-500 relative overflow-visible h-full max-h-[22vh]">
                     
-                    <div class="flex items-center z-10 w-full md:w-[45%] lg:w-[40%] overflow-hidden">
+                    <div class="flex items-center z-10 w-full md:w-[50%] lg:w-[45%] overflow-hidden">
                         <div class="flex-shrink-0">${rankDisplay}</div>
                         
                         <div class="flex items-center gap-2 md:gap-4 flex-1 min-w-0 pr-2">
-                            <img src="${t.characterImg}" alt="${t.name}" class="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 object-contain filter drop-shadow-lg flex-shrink-0" onerror="this.style.display='none'">
-                            
+                            <img src="${t.characterImg}" alt="${t.name}" class="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter drop-shadow-lg flex-shrink-0" onerror="this.style.display='none'">
                             <span class="font-extrabold text-slate-800 text-responsive-name tracking-tight leading-none drop-shadow-sm break-words">${t.name}</span>
                         </div>
                     </div>
 
-                    <div class="flex flex-col justify-center z-10 h-full relative score-section w-full md:w-[55%] lg:w-[60%] pl-2">
-                        <div class="text-right mb-0 md:mb-1 pr-0 md:pr-10 lg:pr-20">
+                    <div class="flex flex-col justify-center z-10 h-full relative score-section w-full md:w-[50%] lg:w-[55%] pl-2">
+                        <div class="text-right mb-0 md:mb-1 pr-12 md:pr-16 lg:pr-20">
                             <span id="score-text-${t.id}" class="font-black ${t.color} text-responsive-score leading-none filter drop-shadow-lg score-anim block">${t.score}</span>
                         </div>
                         <div class="progress-container-custom">
@@ -603,18 +597,15 @@
             createGlobalConfetti();
         }
 
-        function renderAdmin() {
-            if(document.getElementById('admin-view').classList.contains('hidden')) return;
-            document.getElementById('main-title-input').value = mainTitle;
-            const container = document.getElementById('admin-container');
-            container.innerHTML = teams.map((t, i) => `
-                <div class="bg-white rounded-3xl p-4 md:p-6 shadow-lg border-[3px] ${t.border}">
+        function generateAdminHTML(t, i) {
+            return `
+                <div id="admin-card-${i}" class="bg-white rounded-3xl p-4 md:p-6 shadow-lg border-[3px] ${t.border}">
                     <div class="flex items-center gap-4 mb-4 md:mb-6">
                         <div class="text-4xl md:text-5xl bg-slate-50 p-3 md:p-4 rounded-2xl flex-shrink-0">
-                            <img src="${t.characterImg}" alt="${t.name}" class="w-12 h-12 md:w-16 md:h-16 object-contain" onerror="this.style.display='none'">
+                            <img id="admin-head-img-${i}" src="${t.characterImg}" alt="${t.name}" class="w-12 h-12 md:w-16 md:h-16 object-contain" onerror="this.style.display='none'">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <input type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-xl md:text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
+                            <input id="admin-name-${i}" type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-xl md:text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
                             <div class="flex gap-2 flex-wrap">
                                 <select onchange="updateColor(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer w-full md:w-auto">
                                     <option value="${i}">เปลี่ยนสี</option>
@@ -636,8 +627,8 @@
                     </div>
 
                     <div class="flex justify-between items-end mb-4 md:mb-6">
-                        <div><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div><div class="text-5xl md:text-6xl font-extrabold ${t.color}">${t.score}</div></div>
-                         <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div class="text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
+                        <div><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Score</div><div id="admin-score-${i}" class="text-5xl md:text-6xl font-extrabold ${t.color}">${t.score}</div></div>
+                         <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div id="admin-status-${i}" class="text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
                     </div>
                     
                     <div class="flex flex-col gap-3 mb-4">
@@ -658,7 +649,56 @@
                        
                     <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
                 </div>
-            `).join('');
+            `;
+        }
+
+        function renderAdmin() {
+            if(document.getElementById('admin-view').classList.contains('hidden')) return;
+            
+            // Check Title Input focus
+            const titleInput = document.getElementById('main-title-input');
+            if (titleInput && document.activeElement !== titleInput) {
+                titleInput.value = mainTitle;
+            }
+
+            const container = document.getElementById('admin-container');
+            
+            // Initial Render or Full Refresh if card count changes
+            if (container.children.length === 0 || container.children.length !== teams.length) {
+                container.innerHTML = teams.map((t, i) => generateAdminHTML(t, i)).join('');
+                return;
+            }
+
+            // DOM Patching (The "No Blink" Solution)
+            teams.forEach((t, i) => {
+                // Update Score Text
+                const scoreEl = document.getElementById(`admin-score-${i}`);
+                if (scoreEl && scoreEl.innerText !== t.score.toString()) {
+                    scoreEl.innerText = t.score;
+                }
+
+                // Update Status Text
+                const statusEl = document.getElementById(`admin-status-${i}`);
+                if(statusEl) {
+                    const statusText = t.hasFinished ? 'FINISHED 🏁' : 'Racing...';
+                    if(statusEl.innerText !== statusText) {
+                        statusEl.innerText = statusText;
+                        statusEl.className = `text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}`;
+                    }
+                }
+
+                // Update Name Input (Only if not user focused)
+                const nameInput = document.getElementById(`admin-name-${i}`);
+                if (nameInput && document.activeElement !== nameInput && nameInput.value !== t.name) {
+                    nameInput.value = t.name;
+                }
+
+                // Update Character Head Image
+                const headImg = document.getElementById(`admin-head-img-${i}`);
+                if (headImg && headImg.getAttribute('src') !== t.characterImg) {
+                    headImg.src = t.characterImg;
+                }
+            });
         }
 
         function addScore(index, val) {
@@ -681,13 +721,27 @@
                 }
             }
             saveToFirebase();
-            renderAdmin(); 
-            renderDisplay();
+            // Don't call renderAdmin here immediately to avoid double rendering with onValue
+            // onValue will trigger the update shortly
         }
 
         function updateName(index, val) { teams[index].name = val; saveToFirebase(); renderDisplay(); }
-        function updateColor(index, colorIdx) { if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; saveToFirebase(); renderAdmin(); renderDisplay(); } }
-        function updateCharacter(index, charImg) { teams[index].characterImg = charImg; saveToFirebase(); renderAdmin(); renderDisplay(); }
+        function updateColor(index, colorIdx) { 
+            if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { 
+                teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; 
+                saveToFirebase(); 
+                // Force full re-render for color change
+                document.getElementById('admin-container').innerHTML = '';
+                renderAdmin(); 
+                renderDisplay(); 
+            } 
+        }
+        function updateCharacter(index, charImg) { 
+            teams[index].characterImg = charImg; 
+            saveToFirebase(); 
+            renderAdmin(); // Patching handles image src update
+            renderDisplay(); 
+        }
         function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
         function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
         
