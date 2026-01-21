@@ -38,205 +38,101 @@
         }
     </script>
     <style>
+        /* Responsive Base Settings - ปรับลดขนาดลงเล็กน้อยเพื่อให้พอดีจอ 100% */
+        :root {
+            --card-padding: 0.5rem;
+            --font-base: 14px;
+        }
+
+        /* Mobile First */
+        body { font-size: var(--font-base); }
+        .responsive-container { width: 100%; padding: 0.5rem; }
+
+        /* Tablet (iPad) */
+        @media screen and (min-width: 768px) {
+            :root { --card-padding: 1rem; --font-base: 15px; }
+            .responsive-container { width: 95%; margin: 0 auto; }
+        }
+
+        /* Desktop - ปรับขนาดให้กระชับขึ้น */
+        @media screen and (min-width: 1024px) {
+            :root { --card-padding: 1.2rem; --font-base: 16px; }
+            .responsive-container { width: 95%; max-width: 1300px; margin: 0 auto; }
+        }
+
+        /* Large Desktop */
+        @media screen and (min-width: 1440px) {
+             :root { --card-padding: 1.5rem; --font-base: 18px; }
+        }
+
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #1e293b; 
             min-height: 100vh;
         }
 
-        /* Mode Specific Styles */
-        body.mode-display { overflow: hidden; height: 100vh; }
+        /* Mode Styles */
+        body.mode-display { overflow: hidden; height: 100vh; width: 100vw; } /* บังคับไม่ให้มี Scrollbar */
         body.mode-admin { overflow-y: auto; height: auto; }
         
-        .bg-decoration {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .star {
-            position: absolute;
-            background: white;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            animation: twinkle 3s infinite;
-        }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-        
-        .firework-particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
+        /* Decorations */
+        .bg-decoration { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3; pointer-events: none; z-index: 0; }
+        .star { position: absolute; background: white; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: twinkle 3s infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        .firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; }
 
+        /* Animations */
         .score-anim { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-anim.pop { transform: scale(1.3); }
-
-        @keyframes medalFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
+        @keyframes medalFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .medal-icon { animation: medalFloat 3s ease-in-out infinite; display: inline-block; }
+        @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.2); } }
+        .floating-score { position: absolute; font-size: 3rem; font-weight: 900; animation: floatUpFade 1.5s ease-out forwards; pointer-events: none; z-index: 60; text-shadow: 0 4px 10px rgba(255,255,255,0.9); -webkit-text-stroke: 2px white; right: 40px; top: 20%; }
 
-        @keyframes floatUpFade {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
-        }
-        .floating-score {
-            position: absolute;
-            font-size: 3rem; 
-            font-weight: 900;
-            animation: floatUpFade 1.5s ease-out forwards;
-            pointer-events: none;
-            z-index: 60;
-            text-shadow: 0 4px 10px rgba(255,255,255,0.9);
-            -webkit-text-stroke: 2px white;
-            right: 40px;
-            top: 20%;
-        }
-
-        /* Custom Scrollbar */
+        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
+        /* Progress Bar */
         .progress-container-custom {
-            position: relative;
-            width: 100%;
-            height: 3rem; /* Adjusted for mobile */
-            background-color: #f1f5f9;
-            border-radius: 999px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 0.5rem;
-            overflow: visible;
+            position: relative; width: 100%; height: 2.2rem; /* ลดความสูงลงเล็กน้อย */
+            background-color: #f1f5f9; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 0.25rem; overflow: visible;
         }
-        @media (min-width: 768px) { .progress-container-custom { height: 3.5rem; } }
+        @media (min-width: 768px) { .progress-container-custom { height: 3rem; } }
 
-        .progress-fill-custom {
-            height: 100%;
-            border-radius: 999px;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 10;
-        }
-
-        .progress-fill-custom::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transform: translateX(-100%);
-            animation: shimmer 3s infinite;
-            border-radius: 999px;
-        }
+        .progress-fill-custom { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 10; }
+        .progress-fill-custom::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: translateX(-100%); animation: shimmer 3s infinite; border-radius: 999px; }
         @keyframes shimmer { 100% { transform: translateX(100%); } }
 
-        .finish-tape-in-bar {
-            position: absolute;
-            right: 10px;
-            top: 0; bottom: 0; width: 24px; z-index: 20;
-            background-image: 
-                linear-gradient(45deg, #334155 25%, transparent 25%), 
-                linear-gradient(-45deg, #334155 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #334155 75%), 
-                linear-gradient(-45deg, transparent 75%, #334155 75%);
-            background-size: 12px 12px;
-            background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
-            opacity: 0.8;
-            border-left: 1px dashed rgba(255,255,255,0.5);
-            border-right: 1px dashed rgba(255,255,255,0.5);
-        }
-
-        .mascot-on-bar {
-            position: absolute;
-            bottom: -5px;
-            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 30;
-            transform: scaleX(-1);
-            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25));
-            pointer-events: none;
-        }
-
-        .mascot-on-bar img {
-            width: 60px; height: 60px;
-            object-fit: contain;
-        }
-        @media (min-width: 768px) { .mascot-on-bar img { width: 80px; height: 80px; } }
-
-        .confetti-finish {
-            position: absolute; width: 8px; height: 8px; z-index: 50;
-            border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none;
-        }
-        @keyframes finishExplosion {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
-        }
+        .finish-tape-in-bar { position: absolute; right: 10px; top: 0; bottom: 0; width: 24px; z-index: 20; background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%); background-size: 12px 12px; background-position: 0 0, 0 6px, 6px -6px, -6px 0px; opacity: 0.8; border-left: 1px dashed rgba(255,255,255,0.5); border-right: 1px dashed rgba(255,255,255,0.5); }
         
-        .winner-badge-mini {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(-1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            white-space: nowrap;
-        }
-        .winner-crown-mini { font-size: 1.5rem; animation: medalFloat 2s infinite; }
+        .mascot-on-bar { position: absolute; bottom: -5px; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 30; transform: scaleX(-1); filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.25)); pointer-events: none; }
+        .mascot-on-bar img { width: 45px; height: 45px; object-fit: contain; }
+        @media (min-width: 768px) { .mascot-on-bar img { width: 70px; height: 70px; } }
 
-        .character-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: 8px;
-            margin-top: 12px;
-        }
+        .confetti-finish { position: absolute; width: 8px; height: 8px; z-index: 50; border-radius: 50%; animation: finishExplosion 1.5s ease-out forwards; pointer-events: none; }
+        @keyframes finishExplosion { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; } }
+        
+        .winner-badge-mini { position: absolute; top: -20px; left: 50%; transform: translateX(-50%) scaleX(-1); display: flex; flex-direction: column; align-items: center; white-space: nowrap; }
+        .winner-crown-mini { font-size: 1.2rem; animation: medalFloat 2s infinite; }
 
-        .character-option {
-            cursor: pointer;
-            border: 3px solid transparent;
-            border-radius: 12px;
-            padding: 4px;
-            transition: all 0.3s;
-            background: #f8fafc;
-        }
+        /* Character Grid */
+        .character-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; margin-top: 12px; }
+        .character-option { cursor: pointer; border: 3px solid transparent; border-radius: 12px; padding: 4px; transition: all 0.3s; background: #f8fafc; }
+        .character-option:hover { border-color: #3b82f6; transform: scale(1.05); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .character-option img { width: 100%; height: 50px; object-fit: contain; border-radius: 8px; }
+        .character-option.selected { border-color: #22c55e; background: #dcfce7; }
 
-        .character-option:hover {
-            border-color: #3b82f6;
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
+        /* Dynamic Text Sizes - ปรับ Clamp ให้เล็กลงเล็กน้อย */
+        .text-responsive-title { font-size: clamp(1.8rem, 4vw, 4rem); }
+        .text-responsive-target { font-size: clamp(0.9rem, 2vw, 1.8rem); }
+        .text-responsive-rank { font-size: clamp(2rem, 5vw, 4rem); }
+        .text-responsive-name { font-size: clamp(1.1rem, 2.2vw, 2.2rem); }
+        .text-responsive-score { font-size: clamp(1.8rem, 4.5vw, 4rem); }
 
-        .character-option img {
-            width: 100%;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .character-option.selected {
-            border-color: #22c55e;
-            background: #dcfce7;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .ranking-card { padding: 1rem; }
-            .ranking-card > div:first-child { width: 100% !important; margin-bottom: 1rem; }
-            .ranking-card > div:last-child { width: 100% !important; padding-right: 0 !important; }
-            .ranking-card { flex-direction: column; align-items: stretch; }
-            .medal-icon { margin-right: 0.5rem; font-size: 3.5rem !important; }
-            .admin-container { padding-bottom: 4rem; }
-        }
+        .ranking-card { padding: var(--card-padding); }
     </style>
 </head>
 <body class="flex flex-col">
@@ -257,53 +153,53 @@
             <p class="text-white/80 text-lg">*กดปุ่มด้านล่างเพื่อเปิดใช้งานเสียง</p>
         </div>
         <div class="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-2xl justify-center">
-            <button onclick="enterMode('display')" class="group px-6 py-6 md:px-10 md:py-8 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
-                <div class="text-5xl md:text-6xl mb-4 group-hover:scale-110 transition-transform">📺</div>
-                <div class="text-xl md:text-2xl font-bold text-slate-700">หน้าจอแสดงผล</div>
+            <button onclick="enterMode('display')" class="group px-6 py-6 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">📺</div>
+                <div class="text-xl font-bold text-slate-700">หน้าจอแสดงผล</div>
             </button>
-            <button onclick="enterMode('admin')" class="group px-6 py-6 md:px-10 md:py-8 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
-                <div class="text-5xl md:text-6xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
-                <div class="text-xl md:text-2xl font-bold text-slate-700">หน้าจอกรรมการ</div>
+            <button onclick="enterMode('admin')" class="group px-6 py-6 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
+                <div class="text-xl font-bold text-slate-700">หน้าจอกรรมการ</div>
             </button>
         </div>
     </div>
 
-    <div id="display-view" class="hidden w-full h-full relative flex-col">
-        <main id="display-main-content" class="w-full max-w-[1400px] p-4 md:p-8 flex flex-col z-10 h-full relative overflow-hidden gap-2 mx-auto">
-            <header class="text-left relative pl-2 flex flex-col md:flex-row justify-between items-start md:items-end mb-4 flex-shrink-0">
-                <div>
-                    <h1 id="display-title" class="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none drop-shadow-lg">Townhall 2026</h1>
-                    <div class="h-2 md:h-3 w-32 md:w-48 bg-gradient-to-r from-yellow-400 to-pink-500 mt-2 md:mt-4 rounded-full"></div>
+    <div id="display-view" class="hidden w-screen h-screen relative flex-col items-center justify-center overflow-hidden">
+        <main class="responsive-container flex flex-col z-10 h-full max-h-screen relative gap-2 py-2">
+            <header class="text-left relative flex flex-row justify-between items-end mb-1 flex-shrink-0 pt-2">
+                <div class="flex-1">
+                    <h1 id="display-title" class="text-responsive-title font-black text-white tracking-tight leading-none drop-shadow-lg">Townhall 2026</h1>
+                    <div class="h-2 md:h-3 w-32 md:w-48 bg-gradient-to-r from-yellow-400 to-pink-500 mt-1 md:mt-2 rounded-full"></div>
                 </div>
-                <div class="pb-2 mt-2 md:mt-0">
-                     <span class="text-2xl md:text-3xl font-bold text-white/80">TARGET: <span class="text-white text-3xl md:text-4xl drop-shadow-md">1,300</span></span>
+                <div class="pb-1 text-right">
+                     <span class="text-responsive-target font-bold text-white/80 block">TARGET: <span class="text-white drop-shadow-md">1,300</span></span>
                 </div>
             </header>
 
-            <div id="ranking-list" class="flex-1 flex flex-col justify-start gap-4 md:gap-6 my-2 overflow-y-auto px-2 md:px-4 custom-scrollbar pb-8">
-            </div>
+            <div id="ranking-list" class="flex-1 flex flex-col justify-center gap-2 md:gap-3 my-1 overflow-hidden">
+                </div>
         </main>
     </div>
 
     <div id="admin-view" class="hidden w-full min-h-screen bg-slate-100 relative">
-        <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <div class="responsive-container py-4">
             <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-sm border border-slate-200 p-4 mb-6 flex flex-col md:flex-row justify-between items-center sticky top-4 z-40 gap-4">
                 <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
-                    <h1 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2">⚙️ ควบคุม</h1>
+                    <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">⚙️ ควบคุม</h1>
                     
                     <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
                         <button onclick="toggleMute()" id="mute-btn" class="text-xl hover:scale-110 transition-transform p-1">🔊</button>
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-20 md:w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolume(this.value)">
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-20 md:w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolume(this.value)">
                     </div>
                 </div>
                 
-                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                     <input type="text" id="main-title-input" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg transition-all w-full md:w-64" placeholder="ชื่อกิจกรรม">
-                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all whitespace-nowrap">🗑️ ล้างคะแนน</button>
+                <div class="flex gap-2 w-full md:w-auto">
+                     <input type="text" id="main-title-input" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg transition-all" placeholder="ชื่อกิจกรรม">
+                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap">🗑️ ล้าง</button>
                 </div>
             </div>
 
-            <div id="admin-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-10"></div>
+            <div id="admin-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-10"></div>
         </div>
     </div>
 
@@ -613,36 +509,37 @@
                 let rankDisplay = '';
                 let containerClass = 'bg-white/95 border-slate-200 backdrop-blur-sm';
                 
-                const scoreSize = 'text-5xl md:text-7xl'; 
-                const nameSize = 'text-2xl md:text-4xl';
-
                 if(rank === 1) {
-                    rankDisplay = `<div class="text-6xl md:text-8xl mr-2 md:mr-6 medal-icon drop-shadow-lg">🥇</div>`;
+                    rankDisplay = `<div class="text-responsive-rank mr-2 md:mr-6 medal-icon drop-shadow-lg leading-none">🥇</div>`;
                     containerClass = 'bg-gradient-to-r from-yellow-100/95 via-white/95 to-yellow-50/95 border-yellow-400 backdrop-blur-sm';
                 } else if(rank === 2) {
-                    rankDisplay = `<div class="text-6xl md:text-8xl mr-2 md:mr-6 medal-icon drop-shadow-lg" style="animation-delay: 0.5s">🥈</div>`;
+                    rankDisplay = `<div class="text-responsive-rank mr-2 md:mr-6 medal-icon drop-shadow-lg leading-none" style="animation-delay: 0.5s">🥈</div>`;
                     containerClass = 'bg-gradient-to-r from-slate-100/95 via-white/95 to-slate-50/95 border-slate-300 backdrop-blur-sm';
                 } else if(rank === 3) {
-                    rankDisplay = `<div class="text-6xl md:text-8xl mr-2 md:mr-6 medal-icon drop-shadow-lg" style="animation-delay: 1s">🥉</div>`;
+                    rankDisplay = `<div class="text-responsive-rank mr-2 md:mr-6 medal-icon drop-shadow-lg leading-none" style="animation-delay: 1s">🥉</div>`;
                     containerClass = 'bg-gradient-to-r from-orange-100/95 via-white/95 to-orange-50/95 border-orange-300 backdrop-blur-sm';
                 } else {
-                    rankDisplay = `<div class="text-5xl md:text-7xl font-black text-slate-300 mr-2 md:mr-6 w-16 md:w-24 text-center">#${rank}</div>`;
+                    rankDisplay = `<div class="text-responsive-rank font-black text-slate-300 mr-2 md:mr-6 w-16 md:w-24 text-center leading-none">#${rank}</div>`;
                 }
 
                 const mascotLeft = `calc(${percent}% - 2rem)`; // Adjust for mobile
 
                 return `
-                <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[2rem] md:rounded-[3rem] border-[3px] shadow-2xl px-4 md:px-10 py-4 md:py-6 flex items-center justify-between transition-all duration-500 relative overflow-visible">
-                    <div class="flex items-center z-10 w-full md:w-[35%]">
-                        ${rankDisplay}
-                        <div class="flex items-center gap-3 md:gap-5 flex-1 min-w-0">
-                            <img src="${t.characterImg}" alt="${t.name}" class="w-14 h-14 md:w-20 md:h-20 object-contain filter drop-shadow-lg flex-shrink-0" onerror="this.style.display='none'">
-                            <span class="font-extrabold text-slate-800 ${nameSize} tracking-tight leading-tight drop-shadow-sm truncate w-full">${t.name}</span>
+                <div id="main-card-${t.id}" class="ranking-card w-full ${containerClass} rounded-[2rem] border-[3px] shadow-2xl flex items-center justify-between transition-all duration-500 relative overflow-visible h-full max-h-[22vh]">
+                    
+                    <div class="flex items-center z-10 w-full md:w-[45%] lg:w-[40%] overflow-hidden">
+                        <div class="flex-shrink-0">${rankDisplay}</div>
+                        
+                        <div class="flex items-center gap-2 md:gap-4 flex-1 min-w-0 pr-2">
+                            <img src="${t.characterImg}" alt="${t.name}" class="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 object-contain filter drop-shadow-lg flex-shrink-0" onerror="this.style.display='none'">
+                            
+                            <span class="font-extrabold text-slate-800 text-responsive-name tracking-tight leading-none drop-shadow-sm break-words">${t.name}</span>
                         </div>
                     </div>
-                    <div class="flex flex-col justify-center z-10 h-full relative score-section w-full md:w-[60%]">
-                        <div class="text-right mb-2 pr-0 md:pr-20">
-                            <span id="score-text-${t.id}" class="font-black ${t.color} ${scoreSize} leading-none filter drop-shadow-lg score-anim block">${t.score}</span>
+
+                    <div class="flex flex-col justify-center z-10 h-full relative score-section w-full md:w-[55%] lg:w-[60%] pl-2">
+                        <div class="text-right mb-0 md:mb-1 pr-0 md:pr-10 lg:pr-20">
+                            <span id="score-text-${t.id}" class="font-black ${t.color} text-responsive-score leading-none filter drop-shadow-lg score-anim block">${t.score}</span>
                         </div>
                         <div class="progress-container-custom">
                             <div class="absolute inset-0 bg-slate-200/50 rounded-full"></div>
@@ -743,20 +640,20 @@
                          <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div class="text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
                     </div>
                     
-                    <div class="grid grid-cols-4 gap-2 md:gap-3 mb-4">
-                        <button onclick="addScore(${i}, 30)" class="col-span-1 py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+30</button>
-                        <button onclick="addScore(${i}, 50)" class="col-span-1 py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+50</button>
-                        <button onclick="addScore(${i}, 70)" class="col-span-2 py-3 md:py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-200 transition-all text-xl md:text-2xl">+70</button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 md:gap-3 mb-4">
-                         <button onclick="addScore(${i}, 100)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-green-50 text-slate-600 hover:text-green-600 font-bold border border-slate-200 transition-all text-base md:text-lg">+100</button>
-                         <button onclick="addScore(${i}, -100)" class="py-3 md:py-4 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base md:text-lg">-100</button>
-                    </div>
-                    
-                    <div class="grid grid-cols-3 gap-2 md:gap-3 mb-4">
-                        <button onclick="addScore(${i}, -30)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-30</button>
-                        <button onclick="addScore(${i}, -50)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-50</button>
-                        <button onclick="addScore(${i}, -70)" class="py-2 md:py-3 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-sm md:text-base">-70</button>
+                    <div class="flex flex-col gap-3 mb-4">
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="addScore(${i}, 30)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+30</button>
+                            <button onclick="addScore(${i}, 50)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+50</button>
+                            <button onclick="addScore(${i}, 70)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+70</button>
+                            <button onclick="addScore(${i}, 100)" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-xl">+100</button>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="addScore(${i}, -30)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-30</button>
+                            <button onclick="addScore(${i}, -50)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-50</button>
+                            <button onclick="addScore(${i}, -70)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-70</button>
+                            <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-md shadow-red-200 transition-all text-lg">-100</button>
+                        </div>
                     </div>
                        
                     <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
