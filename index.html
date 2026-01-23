@@ -263,11 +263,11 @@
                 
                 <div class="flex gap-2 w-full md:w-auto">
                      <input type="text" id="main-title-input" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-center focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg transition-all" placeholder="ชื่อกิจกรรม">
-                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap">🗑️ ล้าง</button>
+                    <button onclick="resetAll()" class="bg-red-50 text-red-600 border border-red-100 hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap">🗑️ ล้างทั้งหมด</button>
                 </div>
             </div>
 
-            <div id="admin-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-10"></div>
+            <div id="admin-container" class="pb-10"></div>
         </div>
     </div>
 
@@ -306,27 +306,22 @@
             { name: 'Star 2', img: 'star2.png' },
             { name: '142', img: '142.png' },
             { name: '3', img: '3.png' }
-          
-
-            
         ];
         
+        // --- 1. ปรับแก้ไขสี OCEAN ให้เป็นสีน้ำเงินและวงกลม ---
         const COLOR_OPTIONS = [
-            { name: '🔴 สีแดง', color: 'text-red-500', bg: 'bg-red-500', border: 'border-red-500', glow: 'drop-shadow(0 0 10px rgba(239, 68, 68, 1))' },
-            { name: '🔵 สีน้ำเงิน', color: 'text-blue-500', bg: 'bg-blue-500', border: 'border-blue-500', glow: 'drop-shadow(0 0 10px rgba(59, 130, 246, 1))' },
-            { name: '🟢 สีเขียว', color: 'text-green-600', bg: 'bg-green-500', border: 'border-green-500', glow: 'drop-shadow(0 0 10px rgba(34, 197, 94, 1))' },
-            { name: '🟡 สีเหลือง', color: 'text-yellow-500', bg: 'bg-yellow-400', border: 'border-yellow-400', glow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' },
-            { name: '🟣 สีม่วง', color: 'text-purple-500', bg: 'bg-purple-500', border: 'border-purple-500', glow: 'drop-shadow(0 0 10px rgba(168, 85, 247, 1))' },
-            { name: '🩷 สีชมพู', color: 'text-pink-500', bg: 'bg-pink-500', border: 'border-pink-500', glow: 'drop-shadow(0 0 10px rgba(236, 72, 153, 1))' },
-            { name: '🟠 สีส้ม', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
-            { name: '🩵 สีฟ้า', color: 'text-teal-500', bg: 'bg-teal-500', border: 'border-teal-500', glow: 'drop-shadow(0 0 10px rgba(20, 184, 166, 1))' }
+            { name: '🔵 OCEAN', color: 'text-blue-500', bg: 'bg-blue-500', border: 'border-blue-500', glow: 'drop-shadow(0 0 10px rgba(59, 130, 246, 1))' },
+            { name: '🟢 EMERALD', color: 'text-green-600', bg: 'bg-green-500', border: 'border-green-500', glow: 'drop-shadow(0 0 10px rgba(34, 197, 94, 1))' },
+            { name: '🟠 TANGERINE', color: 'text-orange-500', bg: 'bg-orange-500', border: 'border-orange-500', glow: 'drop-shadow(0 0 10px rgba(249, 115, 22, 1))' },
+            { name: '🟡 GOLD', color: 'text-yellow-500', bg: 'bg-yellow-400', border: 'border-yellow-400', glow: 'drop-shadow(0 0 10px rgba(234, 179, 8, 1))' }
         ];
         
+        // --- 2. ตั้ง Default Data ---
         const defaultData = [
-            { id: 0, name: 'ทีม Star Platinum', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], characterImg: '400px-Star_Platinum_SO_Infobox_Anime.png' },
-            { id: 1, name: 'ทีม Jotaro', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], characterImg: 'jotaro1.png' },
-            { id: 2, name: 'ทีม DIO', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], characterImg: 'dio-brando.png' },
-            { id: 3, name: 'ทีม Giorno', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], characterImg: 'giorno.png' }
+            { id: 0, name: 'OCEAN', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], characterImg: 'jotaro1.png' },
+            { id: 1, name: 'EMERALD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], characterImg: 'dio-brando.png' },
+            { id: 2, name: 'TANGERINE', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], characterImg: 'giorno.png' },
+            { id: 3, name: 'GOLD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], characterImg: 'theword1-Photoroom.png' }
         ];
 
         let teams = defaultData;
@@ -337,13 +332,16 @@
         let isFirebaseReady = false;
         let isFirstLoad = true;
         let audioSettings = { volume: 0.5, isMuted: false };
-        let shownUltimateTeams = {}; // Track which teams have shown the effect
+        let shownUltimateTeams = {}; 
+
+        // ตัวแปรสำหรับจัดการหน้า Admin แบบแยกทีม
+        let adminTeamSelection = null; // null = หน้าเลือกสี, 0-3 = หน้าคุมทีมนั้นๆ
 
         const sfxScore = document.getElementById('sfx-score');
         const sfxDisplayHit = document.getElementById('sfx-display-hit');
         const sfxWin = document.getElementById('sfx-win');
         const sfxClick = document.getElementById('sfx-click');
-        const sfxThunder = document.getElementById('sfx-thunder'); // New SFX
+        const sfxThunder = document.getElementById('sfx-thunder'); 
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
@@ -374,37 +372,33 @@
             window.firebaseOnValue(teamsRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (currentMode === 'display') {
-                        let hasScoreIncreased = false;
-                        
-                        data.forEach((t, i) => {
-                            const prevScore = previousScores[i] || 0;
-                            // Check score increase
-                            if (t.score > prevScore) {
-                                hasScoreIncreased = true;
-                            }
-                            
-                            // *** NEW: Check Ultimate Condition (Hit 500) ***
-                            if (t.score >= 500 && prevScore < 500 && !shownUltimateTeams[t.id]) {
-                                triggerUltimateEffect(t);
-                                shownUltimateTeams[t.id] = true; // prevent repeat
-                            }
-                            // Reset flag if score drops below 500 (optional)
-                            if (t.score < 500) {
-                                shownUltimateTeams[t.id] = false;
-                            }
-                        });
-                        
-                        if (hasScoreIncreased && !isFirstLoad) {
-                            playSound('display_hit');
-                        }
+                    let cleanData = data;
+                    if(data.length > 4) {
+                         cleanData = data.slice(0, 4);
                     }
 
-                    previousScores = data.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
-                    teams = data;
+                    if (currentMode === 'display') {
+                        let hasScoreIncreased = false;
+                        cleanData.forEach((t, i) => {
+                            const prevScore = previousScores[i] || 0;
+                            if (t.score > prevScore) { hasScoreIncreased = true; }
+                            if (t.score >= 500 && prevScore < 500 && !shownUltimateTeams[t.id]) {
+                                triggerUltimateEffect(t);
+                                shownUltimateTeams[t.id] = true;
+                            }
+                            if (t.score < 500) { shownUltimateTeams[t.id] = false; }
+                        });
+                        if (hasScoreIncreased && !isFirstLoad) { playSound('display_hit'); }
+                    }
+
+                    previousScores = cleanData.reduce((acc, t, i) => ({...acc, [i]: t.score}), {});
+                    teams = cleanData;
                     renderDisplay();
                     renderAdmin();
                     isFirstLoad = false;
+                } else {
+                    teams = defaultData;
+                    saveToFirebase();
                 }
             });
             
@@ -466,7 +460,6 @@
         function updateAdminAudioUI() {
             const muteBtn = document.getElementById('mute-btn');
             const slider = document.getElementById('volume-slider');
-            
             if(muteBtn && slider) {
                 muteBtn.innerHTML = audioSettings.isMuted ? '🔇' : '🔊';
                 slider.value = audioSettings.volume;
@@ -486,7 +479,6 @@
 
         function checkAndUpdateMusic() {
             if(currentMode !== 'display') return;
-            
             const maxScore = Math.max(...teams.map(t => t.score));
             const targetState = maxScore >= EXCITED_THRESHOLD ? 'excited' : 'normal';
 
@@ -497,15 +489,11 @@
                     bgmExcited.play().catch(() => {});
                 } else {
                     bgmExcited.pause();
-                    if(bgmNormal.paused) {
-                        bgmNormal.play().catch(() => {});
-                    }
+                    if(bgmNormal.paused) { bgmNormal.play().catch(() => {}); }
                 }
                 currentMusicState = targetState;
             } else {
-                if (targetState === 'normal' && bgmNormal.paused) {
-                     bgmNormal.play().catch(() => {});
-                }
+                if (targetState === 'normal' && bgmNormal.paused) { bgmNormal.play().catch(() => {}); }
             }
         }
 
@@ -544,7 +532,6 @@
             }
         }
 
-        // *** NEW: ULTIMATE EFFECT FUNCTION ***
         function triggerUltimateEffect(team) {
             const overlay = document.getElementById('ultimate-overlay');
             const img = document.getElementById('ultimate-img');
@@ -554,25 +541,21 @@
                 overlay.classList.remove('hidden');
                 overlay.style.opacity = '1';
                 
-                playSound('thunder'); // Play sound effect
+                playSound('thunder'); 
 
-                // Reset animation
                 const charDiv = document.getElementById('effect-char');
                 const flashDiv = document.getElementById('effect-flash');
                 charDiv.style.animation = 'none';
-                charDiv.offsetHeight; /* trigger reflow */
+                charDiv.offsetHeight; 
                 charDiv.style.animation = 'cutInAnim 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards';
                 
                 flashDiv.style.animation = 'none';
                 flashDiv.offsetHeight;
                 flashDiv.style.animation = 'flashAnim 0.8s ease-out forwards';
 
-                // Hide after animation
                 setTimeout(() => {
                     overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        overlay.classList.add('hidden');
-                    }, 200);
+                    setTimeout(() => { overlay.classList.add('hidden'); }, 200);
                 }, 1500);
             }
         }
@@ -606,6 +589,7 @@
                 document.getElementById('display-view').classList.add('hidden');
                 
                 playSound('click');
+                adminTeamSelection = null; 
                 renderAdmin();
                 updateAdminAudioUI();
             }
@@ -721,26 +705,25 @@
             createGlobalConfetti();
         }
 
+        // --- 3. ฟังก์ชันสร้างหน้า Admin แบบใหม่ (แยก Hub กับ Detail) ---
         function generateAdminHTML(t, i) {
+            // นี่คือหน้า Detail ของทีมเดียว
             return `
-                <div id="admin-card-${i}" class="bg-white rounded-3xl p-4 md:p-6 shadow-lg border-[3px] ${t.border}">
+                <div class="mb-4 text-center">
+                    <button onclick="adminTeamSelection = null; renderAdmin();" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-all">⬅️ กลับไปหน้าเลือกทีม</button>
+                </div>
+                <div id="admin-card-${i}" class="bg-white rounded-3xl p-4 md:p-6 shadow-2xl border-[4px] ${t.border} max-w-2xl mx-auto">
                     <div class="flex items-center gap-4 mb-4 md:mb-6">
                         <div class="text-4xl md:text-5xl bg-slate-50 p-3 md:p-4 rounded-2xl flex-shrink-0">
                             <img id="admin-head-img-${i}" src="${t.characterImg}" alt="${t.name}" class="w-12 h-12 md:w-16 md:h-16 object-contain" onerror="this.style.display='none'">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <input id="admin-name-${i}" type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-xl md:text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
-                            <div class="flex gap-2 flex-wrap">
-                                <select onchange="updateColor(${i}, this.value)" class="text-sm px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer w-full md:w-auto">
-                                    <option value="${i}">เปลี่ยนสี</option>
-                                    ${COLOR_OPTIONS.map((c, idx) => `<option value="${idx}">${c.name}</option>`).join('')}
-                                </select>
-                            </div>
+                            <input id="admin-name-${i}" type="text" value="${t.name}" onchange="updateName(${i}, this.value)" class="text-xl md:text-3xl font-bold text-slate-800 bg-transparent border-b-2 border-transparent focus:border-blue-500 outline-none w-full mb-2">
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <div class="text-sm font-bold text-slate-600 mb-2">เลือกตัวละคร JOJO:</div>
+                        <div class="text-sm font-bold text-slate-600 mb-2">เปลี่ยนตัวละคร JOJO:</div>
                         <div class="character-grid max-h-48 md:max-h-60 overflow-y-auto p-2 bg-slate-50 rounded-xl custom-scrollbar">
                             ${JOJO_CHARACTERS.map(char => `
                                 <div class="character-option ${t.characterImg === char.img ? 'selected' : ''}" onclick="updateCharacter(${i}, '${char.img}')">
@@ -757,10 +740,10 @@
                     
                     <div class="flex flex-col gap-3 mb-4">
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="addScore(${i}, 30)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+30</button>
-                            <button onclick="addScore(${i}, 50)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+50</button>
-                            <button onclick="addScore(${i}, 70)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-lg">+70</button>
-                            <button onclick="addScore(${i}, 100)" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-xl">+100</button>
+                            <button onclick="addScore(${i}, 30)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+30</button>
+                            <button onclick="addScore(${i}, 50)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+50</button>
+                            <button onclick="addScore(${i}, 70)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+70</button>
+                            <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-2xl">+100</button>
                         </div>
 
                         <div class="grid grid-cols-4 gap-2">
@@ -770,7 +753,7 @@
                             <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-md shadow-red-200 transition-all text-lg">-100</button>
                         </div>
                     </div>
-                       
+                        
                     <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
                 </div>
             `;
@@ -779,7 +762,6 @@
         function renderAdmin() {
             if(document.getElementById('admin-view').classList.contains('hidden')) return;
             
-            // Check Title Input focus
             const titleInput = document.getElementById('main-title-input');
             if (titleInput && document.activeElement !== titleInput) {
                 titleInput.value = mainTitle;
@@ -787,42 +769,58 @@
 
             const container = document.getElementById('admin-container');
             
-            // Initial Render or Full Refresh if card count changes
-            if (container.children.length === 0 || container.children.length !== teams.length) {
-                container.innerHTML = teams.map((t, i) => generateAdminHTML(t, i)).join('');
-                return;
-            }
+            if (adminTeamSelection === null) {
+                container.className = "grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8";
+                container.innerHTML = teams.map((t, i) => `
+                    <button onclick="selectAdminTeam(${i})" class="group relative overflow-hidden bg-white rounded-3xl p-8 border-[4px] ${t.border} shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-left">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-current opacity-5 rounded-full -mr-10 -mt-10 ${t.color}"></div>
+                        <div class="flex items-center gap-6 relative z-10">
+                            <img src="${t.characterImg}" class="w-20 h-20 object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                            <div>
+                                <div class="text-sm font-bold text-slate-400 mb-1">TEAM</div>
+                                <div class="text-3xl font-black ${t.color} uppercase tracking-tight">${t.name}</div>
+                                <div class="text-slate-500 font-medium mt-2">Score: <span class="text-slate-800 font-bold text-xl">${t.score}</span></div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 right-6 text-slate-300 group-hover:text-slate-400 font-bold flex items-center gap-2">
+                            ควบคุม <span class="text-xl">→</span>
+                        </div>
+                    </button>
+                `).join('');
+            } else {
+                container.className = "w-full pb-10";
+                const existingCard = document.getElementById(`admin-card-${adminTeamSelection}`);
+                
+                if (!existingCard) {
+                    container.innerHTML = generateAdminHTML(teams[adminTeamSelection], adminTeamSelection);
+                } else {
+                    const i = adminTeamSelection;
+                    const t = teams[i];
+                    
+                    const scoreEl = document.getElementById(`admin-score-${i}`);
+                    if (scoreEl && scoreEl.innerText !== t.score.toString()) { scoreEl.innerText = t.score; }
 
-            // DOM Patching (The "No Blink" Solution)
-            teams.forEach((t, i) => {
-                // Update Score Text
-                const scoreEl = document.getElementById(`admin-score-${i}`);
-                if (scoreEl && scoreEl.innerText !== t.score.toString()) {
-                    scoreEl.innerText = t.score;
-                }
-
-                // Update Status Text
-                const statusEl = document.getElementById(`admin-status-${i}`);
-                if(statusEl) {
-                    const statusText = t.hasFinished ? 'FINISHED 🏁' : 'Racing...';
-                    if(statusEl.innerText !== statusText) {
-                        statusEl.innerText = statusText;
-                        statusEl.className = `text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}`;
+                    const statusEl = document.getElementById(`admin-status-${i}`);
+                    if(statusEl) {
+                        const statusText = t.hasFinished ? 'FINISHED 🏁' : 'Racing...';
+                        if(statusEl.innerText !== statusText) {
+                            statusEl.innerText = statusText;
+                            statusEl.className = `text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}`;
+                        }
                     }
+                    const nameInput = document.getElementById(`admin-name-${i}`);
+                    if (nameInput && document.activeElement !== nameInput && nameInput.value !== t.name) { nameInput.value = t.name; }
+                    
+                    const headImg = document.getElementById(`admin-head-img-${i}`);
+                    if (headImg && headImg.getAttribute('src') !== t.characterImg) { headImg.src = t.characterImg; }
                 }
+            }
+        }
 
-                // Update Name Input (Only if not user focused)
-                const nameInput = document.getElementById(`admin-name-${i}`);
-                if (nameInput && document.activeElement !== nameInput && nameInput.value !== t.name) {
-                    nameInput.value = t.name;
-                }
-
-                // Update Character Head Image
-                const headImg = document.getElementById(`admin-head-img-${i}`);
-                if (headImg && headImg.getAttribute('src') !== t.characterImg) {
-                    headImg.src = t.characterImg;
-                }
-            });
+        window.selectAdminTeam = function(index) {
+            playSound('click');
+            adminTeamSelection = index;
+            renderAdmin();
         }
 
         function addScore(index, val) {
@@ -845,29 +843,28 @@
                 }
             }
             saveToFirebase();
-            // Don't call renderAdmin here immediately to avoid double rendering with onValue
-            // onValue will trigger the update shortly
         }
 
         function updateName(index, val) { teams[index].name = val; saveToFirebase(); renderDisplay(); }
-        function updateColor(index, colorIdx) { 
-            if(colorIdx >= 0 && colorIdx < COLOR_OPTIONS.length) { 
-                teams[index] = { ...teams[index], ...COLOR_OPTIONS[colorIdx] }; 
+        // updateColor ถูกตัดออกเพราะสีถูก Fix ไว้แล้ว
+        function updateCharacter(index, charImg) { 
+            teams[index].characterImg = charImg; 
+            saveToFirebase(); 
+            renderAdmin(); 
+            renderDisplay(); 
+        }
+        function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
+        
+        // แก้ไขปุ่มล้างทั้งหมดให้ Reset กลับมาเป็น Default 4 ทีม
+        function resetAll() { 
+            if(confirm('⚠️ ยืนยันการล้างคะแนนและรีเซ็ตทีมทั้งหมด?\n(ชื่อทีมและคะแนนจะถูกตั้งค่าเริ่มต้นใหม่)')) { 
+                teams = JSON.parse(JSON.stringify(defaultData)); // Deep copy reset
                 saveToFirebase(); 
-                // Force full re-render for color change
-                document.getElementById('admin-container').innerHTML = '';
+                adminTeamSelection = null; // เด้งกลับหน้าเลือกทีม
                 renderAdmin(); 
                 renderDisplay(); 
             } 
         }
-        function updateCharacter(index, charImg) { 
-            teams[index].characterImg = charImg; 
-            saveToFirebase(); 
-            renderAdmin(); // Patching handles image src update
-            renderDisplay(); 
-        }
-        function resetTeam(index) { if(confirm('รีเซ็ตคะแนนทีมนี้เป็น 0?')) { teams[index].score = 0; teams[index].count = 0; teams[index].hasFinished = false; saveToFirebase(); renderAdmin(); renderDisplay(); } }
-        function resetAll() { if(confirm('ยืนยันล้างคะแนนทั้งหมด?')) { teams.forEach(t => { t.score = 0; t.count = 0; t.hasFinished = false; }); saveToFirebase(); renderAdmin(); renderDisplay(); } }
         
         const style = document.createElement('style');
         style.textContent = `
@@ -888,7 +885,3 @@
     </script>
 </body>
 </html>
-
-
-
-
