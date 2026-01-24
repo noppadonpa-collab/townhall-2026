@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⏱️ Modern Timer - Townhall 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@500;800&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- Base & Background --- */
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Dynamic Gradient Background */
+        .bg-gradient {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            z-index: -2;
+            transition: all 0.5s ease;
+        }
+
+        .bg-mesh {
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: rotateMesh 20s linear infinite;
+        }
+
+        @keyframes rotateMesh {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* --- Input Setup Screen --- */
+        .setup-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            /* แก้ไข: เพื่อความชัวร์ในการจัดกึ่งกลาง */
+            position: relative; 
+            z-index: 20;
+            transform: translateY(0);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .setup-card.hidden-up {
+            transform: translateY(-150vh);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute; /* เมื่อซ่อน ให้ลอยออกไป */
+        }
+
+        .time-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .time-input {
+            width: 100px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .time-input:focus {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .input-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- Timer Display Screen --- */
+        .timer-container {
+            /* แก้ไขจุดสำคัญ: เปลี่ยนเป็น absolute เพื่อไม่ให้ดันหน้า setup */
+            position: absolute; 
+            top: 50%;
+            left: 50%;
+            /* แก้ไข Transform: ต้องมี translate -50% เพื่อให้กึ่งกลาง */
+            transform: translate(-50%, -50%) scale(0.9);
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .timer-container.active {
+            opacity: 1;
+            /* แก้ไข Transform: รักษาตำแหน่งกึ่งกลางไว้ตอนขยาย */
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: all;
+        }
+
+        /* SVG Circle Progress */
+        .progress-ring {
+            transform: rotate(-90deg);
+            width: 500px;
+            height: 500px;
+            max-width: 90vw;
+            max-height: 90vw;
+        }
+
+        .progress-ring__circle-bg {
+            fill: transparent;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 10;
+        }
+
+        .progress-ring__circle {
+            fill: transparent;
+            stroke: #3b82f6; /* Blue Default */
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 1382; /* 2 * PI * 220 */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+        }
+
+        /* Timer Text */
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-status {
+            position: absolute;
+            top: 68%;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        button {
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #0f172a;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+        /* --- Critical State Effects (Last 10s) --- */
+        body.critical-mode .bg-gradient {
+            background: radial-gradient(circle at 50% 50%, #450a0a 0%, #000000 100%);
+        }
+
+        body.critical-mode .progress-ring__circle {
+            stroke: #ef4444;
+            filter: drop-shadow(0 0 20px #ef4444);
+        }
+
+        body.critical-mode .timer-text {
+            color: #ef4444;
+            animation: pulseText 0.5s ease-in-out infinite alternate;
+        }
+
+        body.critical-mode .bg-mesh {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 60%);
+            animation: rotateMesh 5s linear infinite; /* Faster spin */
+        }
+
+        @keyframes pulseText {
+            from { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+            to { transform: translate(-50%, -50%) scale(1.05); text-shadow: 0 0 40px rgba(239, 68, 68, 1); }
+        }
+
+        /* --- Time Up State --- */
+        .time-up-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .time-up-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .time-up-text {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: clamp(4rem, 15vw, 10rem);
+            font-weight: 900;
+            color: transparent;
+            background: linear-gradient(to bottom, #fff, #999);
+            -webkit-background-clip: text;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div class="bg-mesh"></div>
+
+    <div id="setup-screen" class="setup-card">
+        <h1 class="text-4xl font-bold font-['Chakra_Petch'] mb-2 text-white">⏱️ ตั้งเวลา</h1>
+        <p class="text-slate-400 mb-8 font-light">กำหนดเวลาสำหรับกิจกรรม Townhall</p>
+
+        <div class="time-input-group">
+            <div>
+                <input type="number" id="in-hrs" class="time-input" placeholder="00" min="0" max="23" value="00">
+                <div class="input-label">ชม.</div>
+            </div>
+            <div class="text-4xl font-bold self-center -mt-6">:</div>
+            <div>
+                <input type="number" id="in-mins" class="time-input" placeholder="00" min="0" max="59" value="15">
+                <div class="input-label">นาที</div>
+            </div>
+            <div class="text-4xl font-bold self-center -mt-6">:</div>
+            <div>
+                <input type="number" id="in-secs" class="time-input" placeholder="00" min="0" max="59" value="00">
+                <div class="input-label">วินาที</div>
+            </div>
+        </div>
+
+        <button onclick="startTimer()" class="btn-primary w-full justify-center text-lg py-4">
+            🚀 เริ่มต้นจับเวลา
+        </button>
+    </div>
+
+    <div id="timer-screen" class="timer-container">
+        
+        <svg class="progress-ring" viewBox="0 0 500 500">
+            <circle class="progress-ring__circle-bg" cx="250" cy="250" r="220"></circle>
+            <circle id="progress-circle" class="progress-ring__circle" cx="250" cy="250" r="220"></circle>
+        </svg>
+
+        <div id="timer-text" class="timer-text">00:00:00</div>
+        <div class="timer-status">REMAINING TIME</div>
+
+        <div class="controls">
+            <button onclick="togglePause()" id="btn-pause" class="btn-primary">
+                ⏸️ หยุดชั่วคราว
+            </button>
+            <button onclick="resetSystem()" class="btn-secondary">
+                🔄 ยกเลิก
+            </button>
+        </div>
+    </div>
+
+    <div id="time-up-screen" class="time-up-overlay">
+        <h1 class="time-up-text">TIME OUT</h1>
+        <p class="text-red-500 text-2xl font-bold tracking-[0.5em] mt-4 uppercase">หมดเวลาการแข่งขัน</p>
+        <button onclick="resetSystem()" class="btn-secondary mt-12 border-red-500 text-red-500 hover:bg-red-900/20">
+            กลับไปหน้าหลัก
+        </button>
+    </div>
+
+    <script>
+        // Variables
+        let totalTime = 0;
+        let currentTime = 0;
+        let interval = null;
+        let isPaused = false;
+        
+        // DOM Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const timerScreen = document.getElementById('timer-screen');
+        const timeUpScreen = document.getElementById('time-up-screen');
+        const timerText = document.getElementById('timer-text');
+        const progressCircle = document.getElementById('progress-circle');
+        const btnPause = document.getElementById('btn-pause');
+        
+        // SVG Setup
+        // r = 220, circumference = 2 * PI * 220 ≈ 1382
+        const circumference = 2 * Math.PI * 220;
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // Logic
+        function startTimer() {
+            const h = parseInt(document.getElementById('in-hrs').value) || 0;
+            const m = parseInt(document.getElementById('in-mins').value) || 0;
+            const s = parseInt(document.getElementById('in-secs').value) || 0;
+
+            totalTime = (h * 3600) + (m * 60) + s;
+
+            if (totalTime <= 0) {
+                alert("กรุณาระบุเวลาให้ถูกต้อง");
+                return;
+            }
+
+            currentTime = totalTime;
+            isPaused = false;
+
+            // UI Transition
+            setupScreen.classList.add('hidden-up');
+            timerScreen.classList.add('active');
+            
+            updateDisplay();
+            runTimer();
+        }
+
+        function runTimer() {
+            if (interval) clearInterval(interval);
+            
+            interval = setInterval(() => {
+                if (!isPaused) {
+                    currentTime--;
+                    updateDisplay();
+
+                    if (currentTime <= 0) {
+                        clearInterval(interval);
+                        timeUp();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            // Format Time 00:00:00
+            const h = Math.floor(currentTime / 3600);
+            const m = Math.floor((currentTime % 3600) / 60);
+            const s = currentTime % 60;
+
+            // Conditional formatting: Show HH only if needed
+            let timeString = '';
+            if (h > 0) {
+                timeString = `${pad(h)}:${pad(m)}:${pad(s)}`;
+            } else {
+                timeString = `${pad(m)}:${pad(s)}`;
+            }
+            timerText.innerText = timeString;
+
+            // Update Circle
+            const percent = (currentTime / totalTime) * 100;
+            setProgress(percent);
+
+            // Critical State Check (Last 10 seconds)
+            if (currentTime <= 10) {
+                document.body.classList.add('critical-mode');
+            } else {
+                document.body.classList.remove('critical-mode');
+            }
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                btnPause.innerHTML = "▶️ เริ่มต่อ";
+                btnPause.classList.add('bg-yellow-500', 'text-black');
+                btnPause.classList.remove('btn-primary');
+            } else {
+                btnPause.innerHTML = "⏸️ หยุดชั่วคราว";
+                btnPause.classList.remove('bg-yellow-500', 'text-black');
+                btnPause.classList.add('btn-primary');
+            }
+        }
+
+        function timeUp() {
+            document.body.classList.remove('critical-mode'); // Clear critical state
+            timeUpScreen.classList.add('show');
+            // Play sound here if needed
+        }
+
+        function resetSystem() {
+            if (interval) clearInterval(interval);
+            currentTime = 0;
+            isPaused = false;
+            
+            // Reset UI Classes
+            document.body.classList.remove('critical-mode');
+            timeUpScreen.classList.remove('show');
+            timerScreen.classList.remove('active');
+            setupScreen.classList.remove('hidden-up');
+            
+            // Reset Button
+            btnPause.innerHTML = "⏸️ หยุดชั่วคราว";
+            btnPause.classList.add('btn-primary');
+            
+            // Reset Inputs (Optional)
+            // document.getElementById('in-hrs').value = "00";
+            // document.getElementById('in-mins').value = "00";
+            // document.getElementById('in-secs').value = "00";
+        }
+
+        // Initialize display to 0 progress
+        setProgress(0);
+    </script>
+</body>
+</html>
