@@ -173,7 +173,7 @@
         @keyframes flashAnim {
             0% { opacity: 0.8; background-color: white; }
             10% { opacity: 0; }
-            20% { opacity: 0.5; background-color: #fbbf24; } /* Gold tint */
+            20% { opacity: 0.5; background-color: #fbbf24; }
             30% { opacity: 0; }
             40% { opacity: 0.3; background-color: white; }
             100% { opacity: 0; }
@@ -202,7 +202,8 @@
     <audio id="sfx-display-hit" src="https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ORA%20ORA%20ORA%20-%20Sound%20effect.mp3"></audio>
     <audio id="sfx-win" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"></audio>
     <audio id="sfx-click" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"></audio>
-    <audio id="sfx-thunder" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/explosion.wav"></audio> <audio id="bgm-normal" loop></audio>
+    <audio id="sfx-thunder" src="https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/explosion.wav"></audio>
+    <audio id="bgm-normal" loop></audio>
     <audio id="bgm-excited" loop></audio>
 
     <div id="bg-decorations"></div>
@@ -220,7 +221,7 @@
             <h1 class="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">🏆 ระบบนับคะแนน Townhall 2026</h1>
             <p class="text-white/80 text-lg">*กดปุ่มด้านล่างเพื่อเปิดใช้งานเสียง</p>
         </div>
-        <div class="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-2xl justify-center">
+        <div class="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-3xl justify-center">
             <button onclick="enterMode('display')" class="group px-6 py-6 bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
                 <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">📺</div>
                 <div class="text-xl font-bold text-slate-700">หน้าจอแสดงผล</div>
@@ -228,6 +229,10 @@
             <button onclick="enterMode('admin')" class="group px-6 py-6 bg-white rounded-3xl border-2 border-orange-100 hover:border-orange-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
                 <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🎛️</div>
                 <div class="text-xl font-bold text-slate-700">หน้าจอกรรมการ</div>
+            </button>
+            <button onclick="openTimer()" class="group px-6 py-6 bg-white rounded-3xl border-2 border-green-100 hover:border-green-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full md:w-80 flex flex-col items-center">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">⏱️</div>
+                <div class="text-xl font-bold text-slate-700">หน้าจับเวลา</div>
             </button>
         </div>
     </div>
@@ -245,7 +250,7 @@
             </header>
 
             <div id="ranking-list" class="flex-1 flex flex-col justify-center gap-2 md:gap-3 my-1 overflow-hidden">
-                </div>
+            </div>
         </main>
     </div>
 
@@ -255,9 +260,19 @@
                 <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
                     <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">⚙️ ควบคุม</h1>
                     
-                    <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                        <button onclick="toggleMute()" id="mute-btn" class="text-xl hover:scale-110 transition-transform p-1">🔊</button>
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-20 md:w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolume(this.value)">
+                    <div class="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-500">🎵 BGM</span>
+                                <button onclick="toggleMuteBGM()" id="mute-bgm-btn" class="text-sm hover:scale-110 transition-transform p-1">🔊</button>
+                                <input type="range" id="volume-bgm-slider" min="0" max="1" step="0.1" value="0.5" class="w-16 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600" oninput="updateVolumeBGM(this.value)">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-500">💥 ORA</span>
+                                <button onclick="toggleMuteSFX()" id="mute-sfx-btn" class="text-sm hover:scale-110 transition-transform p-1">🔊</button>
+                                <input type="range" id="volume-sfx-slider" min="0" max="1" step="0.1" value="0.5" class="w-16 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateVolumeSFX(this.value)">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -329,7 +344,7 @@
         let currentMusicState = 'none';
         let isFirebaseReady = false;
         let isFirstLoad = true;
-        let audioSettings = { volume: 0.5, isMuted: false };
+        let audioSettings = { volumeBGM: 0.5, volumeSFX: 0.5, isMutedBGM: false, isMutedSFX: false };
         let shownUltimateTeams = {}; 
 
         let adminTeamSelection = null;
@@ -342,8 +357,11 @@
         const bgmNormal = document.getElementById('bgm-normal');
         const bgmExcited = document.getElementById('bgm-excited');
 
-        sfxScore.volume = 0.5; sfxDisplayHit.volume = 0.6; sfxWin.volume = 0.5; 
-        sfxClick.volume = 0.3; sfxThunder.volume = 0.7;
+        sfxScore.volume = 0.5; 
+        sfxDisplayHit.volume = 0.6; 
+        sfxWin.volume = 0.5; 
+        sfxClick.volume = 0.3; 
+        sfxThunder.volume = 0.7;
         
         bgmNormal.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/ss4%20Golden%20Wind.mp3";
         bgmExcited.src = "https://raw.githubusercontent.com/noppadonpa-collab/townhall-2026/main/Detective%20Conan%20Main%20Theme%20Captured%20In%20Her%20Eyes%20Version.mp3";
@@ -430,7 +448,6 @@
         }
 
         function playSound(type) {
-            // *** LOGIC FIX: ถ้าเป็นโหมด ADMIN ให้เล่นเฉพาะเสียง Click เบาๆ เท่านั้น ห้ามเล่นเสียงอื่น ***
             if (currentMode === 'admin' && type !== 'click') return;
 
             const audioMap = { 
@@ -448,20 +465,18 @@
         }
 
         function updateAudioFromSettings() {
-            const effectiveVolume = audioSettings.isMuted ? 0 : audioSettings.volume;
+            const effectiveVolumeBGM = audioSettings.isMutedBGM ? 0 : audioSettings.volumeBGM;
+            const effectiveVolumeSFX = audioSettings.isMutedSFX ? 0 : audioSettings.volumeSFX;
             
-            // SFX Volume (จะดังเฉพาะหน้า Display ยกเว้น Click ที่ดังหน้า Admin ได้)
-            sfxScore.volume = effectiveVolume;
-            sfxDisplayHit.volume = effectiveVolume;
-            sfxWin.volume = effectiveVolume;
-            sfxThunder.volume = effectiveVolume;
+            sfxScore.volume = effectiveVolumeSFX;
+            sfxDisplayHit.volume = effectiveVolumeSFX;
+            sfxWin.volume = effectiveVolumeSFX;
+            sfxThunder.volume = effectiveVolumeSFX;
             
-            // *** LOGIC FIX: BGM เล่นเฉพาะหน้า DISPLAY เท่านั้น ***
             if (currentMode === 'display') {
-                bgmNormal.volume = effectiveVolume;
-                bgmExcited.volume = effectiveVolume;
+                bgmNormal.volume = effectiveVolumeBGM;
+                bgmExcited.volume = effectiveVolumeBGM;
             } else {
-                // หน้า Admin เงียบกริบสำหรับเพลง
                 bgmNormal.volume = 0;
                 bgmExcited.volume = 0;
                 bgmNormal.pause();
@@ -470,27 +485,42 @@
         }
 
         function updateAdminAudioUI() {
-            const muteBtn = document.getElementById('mute-btn');
-            const slider = document.getElementById('volume-slider');
-            if(muteBtn && slider) {
-                muteBtn.innerHTML = audioSettings.isMuted ? '🔇' : '🔊';
-                slider.value = audioSettings.volume;
+            const muteBGMBtn = document.getElementById('mute-bgm-btn');
+            const muteSFXBtn = document.getElementById('mute-sfx-btn');
+            const sliderBGM = document.getElementById('volume-bgm-slider');
+            const sliderSFX = document.getElementById('volume-sfx-slider');
+            if(muteBGMBtn && sliderBGM) {
+                muteBGMBtn.innerHTML = audioSettings.isMutedBGM ? '🔇' : '🔊';
+                sliderBGM.value = audioSettings.volumeBGM;
+            }
+            if(muteSFXBtn && sliderSFX) {
+                muteSFXBtn.innerHTML = audioSettings.isMutedSFX ? '🔇' : '🔊';
+                sliderSFX.value = audioSettings.volumeSFX;
             }
         }
 
-        function toggleMute() {
-            const newMuteState = !audioSettings.isMuted;
-            const newSettings = { ...audioSettings, isMuted: newMuteState };
+        function toggleMuteBGM() {
+            const newSettings = { ...audioSettings, isMutedBGM: !audioSettings.isMutedBGM };
             updateAudioSettings(newSettings);
         }
 
-        function updateVolume(val) {
-            const newSettings = { ...audioSettings, volume: parseFloat(val), isMuted: false };
+        function toggleMuteSFX() {
+            const newSettings = { ...audioSettings, isMutedSFX: !audioSettings.isMutedSFX };
+            updateAudioSettings(newSettings);
+        }
+
+        function updateVolumeBGM(val) {
+            const newSettings = { ...audioSettings, volumeBGM: parseFloat(val), isMutedBGM: false };
+            updateAudioSettings(newSettings);
+        }
+
+        function updateVolumeSFX(val) {
+            const newSettings = { ...audioSettings, volumeSFX: parseFloat(val), isMutedSFX: false };
             updateAudioSettings(newSettings);
         }
 
         function checkAndUpdateMusic() {
-            if(currentMode !== 'display') return; // Double check
+            if(currentMode !== 'display') return;
             const maxScore = Math.max(...teams.map(t => t.score));
             const targetState = maxScore >= EXCITED_THRESHOLD ? 'excited' : 'normal';
 
@@ -545,7 +575,6 @@
         }
 
         function triggerUltimateEffect(team) {
-            // Ultimate Effect แสดงเฉพาะหน้า Display
             if (currentMode !== 'display') return;
 
             const overlay = document.getElementById('ultimate-overlay');
@@ -573,6 +602,10 @@
                     setTimeout(() => { overlay.classList.add('hidden'); }, 200);
                 }, 1500);
             }
+        }
+
+        function openTimer() {
+            window.open('timer.html', '_blank');
         }
 
         function enterMode(mode) {
@@ -603,7 +636,6 @@
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('display-view').classList.add('hidden');
                 
-                // *** LOGIC FIX: เข้า Admin ปุ๊บ ปิดเสียงเพลงทันที ***
                 bgmNormal.pause();
                 bgmExcited.pause();
                 playSound('click');
@@ -721,7 +753,6 @@
                 element.appendChild(el);
                 setTimeout(() => el.remove(), 1300);
             }
-            createGlobalConfetti();
         }
 
         function generateAdminHTML(t, i) {
@@ -841,8 +872,6 @@
         }
 
         function addScore(index, val) {
-            // เล่นเสียงบนหน้า Admin เฉพาะถ้าเป็น Remote Control (คือไม่เล่นเสียง Score) 
-            // แต่เนื่องจากฟังก์ชัน playSound ถูกดักไว้แล้วบรรทัดแรก จึงไม่ต้องแก้ตรงนี้
             playSound('score'); 
             
             teams[index].score += val;
@@ -883,14 +912,6 @@
                 renderDisplay(); 
             } 
         }
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fall {
-                to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
 
         document.addEventListener('DOMContentLoaded', () => {
             loadFromFirebase();
