@@ -58,7 +58,6 @@
             text-align: center;
             width: 90%;
             max-width: 600px;
-            /* แก้ไข: เพื่อความชัวร์ในการจัดกึ่งกลาง */
             position: relative; 
             z-index: 20;
             transform: translateY(0);
@@ -69,7 +68,7 @@
             transform: translateY(-150vh);
             opacity: 0;
             pointer-events: none;
-            position: absolute; /* เมื่อซ่อน ให้ลอยออกไป */
+            position: absolute;
         }
 
         .time-input-group {
@@ -109,13 +108,10 @@
 
         /* --- Timer Display Screen --- */
         .timer-container {
-            /* แก้ไขจุดสำคัญ: เปลี่ยนเป็น absolute เพื่อไม่ให้ดันหน้า setup */
             position: absolute; 
             top: 50%;
             left: 50%;
-            /* แก้ไข Transform: ต้องมี translate -50% เพื่อให้กึ่งกลาง */
             transform: translate(-50%, -50%) scale(0.9);
-            
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -128,7 +124,6 @@
 
         .timer-container.active {
             opacity: 1;
-            /* แก้ไข Transform: รักษาตำแหน่งกึ่งกลางไว้ตอนขยาย */
             transform: translate(-50%, -50%) scale(1);
             pointer-events: all;
         }
@@ -287,6 +282,14 @@
 </head>
 <body>
 
+    <!-- Countdown Beep Sound (Improved) -->
+    <audio id="sfx-beep" preload="auto">
+        <source src="https://freesound.org/data/previews/344/344310_5121236-lq.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Timeout Alarm Sound -->
+    <audio id="sfx-alarm" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" preload="auto"></audio>
+
     <div class="bg-gradient"></div>
     <div class="bg-mesh"></div>
 
@@ -359,6 +362,13 @@
         const progressCircle = document.getElementById('progress-circle');
         const btnPause = document.getElementById('btn-pause');
         
+        // Audio Elements
+        const sfxBeep = document.getElementById('sfx-beep');
+        const sfxAlarm = document.getElementById('sfx-alarm');
+        
+        // Configure beep sound for countdown
+        sfxBeep.volume = 1.0; // เสียงดังสุด
+        
         // SVG Setup
         // r = 220, circumference = 2 * PI * 220 ≈ 1382
         const circumference = 2 * Math.PI * 220;
@@ -394,6 +404,47 @@
             runTimer();
         }
 
+        function playCountdownBeep() {
+            // สร้าง AudioContext สำหรับเสียง beep ที่ชัดเจน
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // ตั้งค่าเสียง beep แบบ countdown
+            oscillator.frequency.value = 880; // A5 note - เสียงสูง ชัดเจน
+            oscillator.type = 'sine';
+            
+            // ปรับความดัง
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+
+        function playFinalBeep() {
+            // เสียง beep สำหรับวินาทีที่ 0 (ต่างจาก countdown)
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // เสียงต่ำกว่าเล็กน้อยเพื่อบอกว่าจบแล้ว
+            oscillator.frequency.value = 440; // A4 note
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.6, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
         function runTimer() {
             if (interval) clearInterval(interval);
             
@@ -402,8 +453,22 @@
                     currentTime--;
                     updateDisplay();
 
+                    // --- เสียง Countdown 10 วิสุดท้าย ---
+                    if (currentTime <= 10 && currentTime > 0) {
+                        playCountdownBeep(); // เสียง beep สำหรับ 10, 9, 8, ..., 1
+                    }
+                    
+                    // --- หมดเวลา (0) ---
                     if (currentTime <= 0) {
                         clearInterval(interval);
+                        playFinalBeep(); // เสียง beep สำหรับวินาทีที่ 0
+                        
+                        // รอ 0.5 วินาทีแล้วค่อยเล่นเสียง alarm
+                        setTimeout(() => {
+                            sfxAlarm.currentTime = 0;
+                            sfxAlarm.play().catch(e => console.log('Alarm blocked:', e));
+                        }, 500);
+                        
                         timeUp();
                     }
                 }
@@ -457,13 +522,16 @@
         function timeUp() {
             document.body.classList.remove('critical-mode'); // Clear critical state
             timeUpScreen.classList.add('show');
-            // Play sound here if needed
         }
 
         function resetSystem() {
             if (interval) clearInterval(interval);
             currentTime = 0;
             isPaused = false;
+            
+            // หยุดเสียง
+            sfxAlarm.pause();
+            sfxAlarm.currentTime = 0;
             
             // Reset UI Classes
             document.body.classList.remove('critical-mode');
@@ -474,11 +542,6 @@
             // Reset Button
             btnPause.innerHTML = "⏸️ หยุดชั่วคราว";
             btnPause.classList.add('btn-primary');
-            
-            // Reset Inputs (Optional)
-            // document.getElementById('in-hrs').value = "00";
-            // document.getElementById('in-mins').value = "00";
-            // document.getElementById('in-secs').value = "00";
         }
 
         // Initialize display to 0 progress
