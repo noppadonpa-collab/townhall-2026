@@ -393,7 +393,7 @@
                     <button id="btn-champ2" onclick="toggleEventSound('champ2')" 
                         class="sound-button bg-gradient-to-br from-purple-500 to-pink-500 text-white p-8 rounded-3xl shadow-lg border-4 border-purple-300 flex flex-col items-center gap-3 relative">
                         <div class="text-6xl">👑</div>
-                        <div class="text-xl font-black tracking-wide z-10">ประกาศรางวัล</div>
+                        <div class="text-xl font-black tracking-wide z-10">CHAMPION 2</div>
                         <div id="status-champ2" class="text-sm font-medium opacity-80 z-10">กดเพื่อเล่น</div>
                     </button>
 
@@ -409,7 +409,7 @@
                     <button id="btn-open2" onclick="toggleEventSound('open2')" 
                         class="sound-button bg-gradient-to-br from-blue-400 to-indigo-500 text-white p-8 rounded-3xl shadow-lg border-4 border-blue-300 flex flex-col items-center gap-3 relative">
                         <div class="text-6xl">🎊</div>
-                        <div class="text-xl font-black tracking-wide z-10">ENDING</div>
+                        <div class="text-xl font-black tracking-wide z-10">OPENING 2</div>
                         <div id="status-open2" class="text-sm font-medium opacity-80 z-10">กดเพื่อเล่น</div>
                     </button>
                 </div>
@@ -1035,14 +1035,16 @@
                     </div>
                     
                     <div class="flex flex-col gap-3 mb-4">
-                        <div class="grid grid-cols-4 gap-2">
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="addScore(${i}, 20)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+20</button>
                             <button onclick="addScore(${i}, 30)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+30</button>
                             <button onclick="addScore(${i}, 50)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+50</button>
                             <button onclick="addScore(${i}, 70)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+70</button>
                             <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-2xl">+100</button>
                         </div>
 
-                        <div class="grid grid-cols-4 gap-2">
+                        <div class="grid grid-cols-5 gap-2">
+                             <button onclick="addScore(${i}, -20)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-20</button>
                             <button onclick="addScore(${i}, -30)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-30</button>
                             <button onclick="addScore(${i}, -50)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-50</button>
                             <button onclick="addScore(${i}, -70)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-70</button>
@@ -1175,5 +1177,3 @@
     </script>
 </body>
 </html>
-
-
