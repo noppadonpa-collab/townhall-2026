@@ -1034,24 +1034,41 @@
                          <div class="text-right"><div class="text-xs text-slate-400 uppercase font-bold tracking-wider">Status</div><div id="admin-status-${i}" class="text-base md:text-lg font-bold ${t.hasFinished ? 'text-green-500' : 'text-slate-400'}">${t.hasFinished ? 'FINISHED 🏁' : 'Racing...'}</div></div>
                     </div>
                     
-                    <div class="flex flex-col gap-3 mb-4">
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="addScore(${i}, 25)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+25</button>
-                            <button onclick="addScore(${i}, 50)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+50</button>
-                            <button onclick="addScore(${i}, 75)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+75</button>
-                            <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-2xl">+100</button>
-                        </div>
+                  <div class="flex flex-col gap-4 mb-4">
+    <div class="grid grid-cols-4 gap-2">
+        <button onclick="addScore(${i}, 20)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+20</button>
+        <button onclick="addScore(${i}, 40)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+40</button>
+        <button onclick="addScore(${i}, 60)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+60</button>
+        <button onclick="addScore(${i}, 80)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+80</button>
+    </div>
 
-                        <div class="grid grid-cols-4 gap-2">
-                             <button onclick="addScore(${i}, -25)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-25</button>
-                            <button onclick="addScore(${i}, -50)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-50</button>
-                            <button onclick="addScore(${i}, -75)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-75</button>
-                            <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-md shadow-red-200 transition-all text-lg">-100</button>
-                        </div>
-                    </div>
-                        
-                    <div class="pt-4 border-t border-slate-100"><button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button></div>
-                </div>
+    <div class="grid grid-cols-4 gap-2">
+        <button onclick="addScore(${i}, 25)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+25</button>
+        <button onclick="addScore(${i}, 50)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+50</button>
+        <button onclick="addScore(${i}, 75)" class="py-4 rounded-xl bg-slate-100 hover:bg-green-100 text-slate-700 hover:text-green-700 font-bold border border-slate-200 transition-all text-xl">+75</button>
+        <button onclick="addScore(${i}, 100)" class="py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-md shadow-green-200 transition-all text-2xl">+100</button>
+    </div>
+
+    <hr class="border-slate-100">
+
+    <div class="grid grid-cols-4 gap-2">
+        <button onclick="addScore(${i}, -20)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-20</button>
+        <button onclick="addScore(${i}, -40)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-40</button>
+        <button onclick="addScore(${i}, -60)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-60</button>
+        <button onclick="addScore(${i}, -80)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-80</button>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2">
+        <button onclick="addScore(${i}, -25)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-25</button>
+        <button onclick="addScore(${i}, -50)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-50</button>
+        <button onclick="addScore(${i}, -75)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 font-medium border border-slate-200 text-base">-75</button>
+        <button onclick="addScore(${i}, -100)" class="py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-md shadow-red-200 transition-all text-lg">-100</button>
+    </div>
+</div>
+
+<div class="pt-4 border-t border-slate-100">
+    <button onclick="resetTeam(${i})" class="w-full py-2 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">🔄 รีเซ็ตทีมนี้</button>
+</div>
             `;
         }
 
@@ -1175,4 +1192,5 @@
     </script>
 </body>
 </html>
+
 
