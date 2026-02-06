@@ -427,37 +427,27 @@
         const TARGET_SCORE = 1300;
         const EXCITED_THRESHOLD = 500; 
         
-        const JOJO_CHARACTERS = [
-            { name: 'Star Platinum', img: '400px-Star_Platinum_SO_Infobox_Anime.png' },
-            { name: 'Jotaro 1', img: 'jotaro1.png' },
-            { name: 'Jotaro 2', img: 'jotaro2.png' },
-            { name: 'Jotaro 3', img: 'jotaro3.png' },
-            { name: 'Jotaro 4', img: 'jotaro4.png' },
-            { name: 'Jotaro 5', img: 'jotaro5.png' },
-            { name: 'Jotaro 6', img: 'jotaro6.png' },
-            { name: 'Jotaro 7', img: 'jotaro7.png' },
-            { name: 'DIO Brando', img: 'dio-brando.png' },
-            { name: 'DIO 1', img: 'dio1.png' },
-            { name: 'The World 1', img: 'theword1-Photoroom.png' },
-            { name: 'The World 2', img: 'theworld2.png' },
-            { name: 'Giorno', img: 'giorno.png' },
-            { name: 'Giorno 2', img: 'giorno2.png' },
-            { name: 'Bruno', img: 'Unit_Bruno.png' },
-            { name: 'Joseph 1', img: 'joseph1.png' },
-            { name: 'Joseph 2', img: 'joseph2.png' },
-            { name: 'Josuke', img: 'josuke.png' },
-            { name: 'Josuke 2', img: 'josuke2.png' },
-            { name: 'Noriaki', img: 'noriaki.png' },
-            { name: 'Noriaki 2', img: 'noriaki2.png' },
-            { name: 'Jean', img: 'jean.png' },
-            { name: 'Jean 2', img: 'jean2.png' },
-            { name: 'Iggy 1', img: 'iggy1.png' },
-            { name: 'Iggy 2', img: 'iggy2.png' },
-            { name: 'Kosaku', img: 'kosaku.png' },
-            { name: 'Star 1', img: 'star1.png' },
-            { name: 'Star 2', img: 'star2.png' },
-            { name: '142', img: '142.png' },
-            { name: '3', img: '3.png' }
+    const JOJO_CHARACTERS = [
+            { name: 'b1', img: 'b1.png' },
+            { name: 'b2', img: 'b2.png' },
+            { name: 'b3', img: 'b3.png' },
+            { name: 'b4', img: 'b4.png' },
+            { name: 'b5', img: 'b5.png' },
+            { name: 'b6', img: 'b6.png' },
+            { name: 'b7', img: 'b7.png' },
+            { name: 'b8', img: 'b8.png' },
+            { name: 'b9', img: 'b9.png' },
+            { name: 'b10', img: 'b10.png' },
+            { name: 'b11', img: 'b11.png' },
+            { name: 'b12', img: 'b12.png' },
+            { name: 'b13', img: 'b13.png' },
+            { name: 'b14', img: 'b14.png' },
+            { name: 'b15', img: 'b15.png' },
+            { name: 'b16', img: 'b16.png' },
+            { name: 'b17', img: 'b17.png' },
+            { name: 'b18', img: 'b18.png' },
+            { name: 'b19', img: 'b19.png' },
+            { name: 'b20', img: 'b20.png' }
         ];
         
         const COLOR_OPTIONS = [
@@ -468,12 +458,13 @@
         ];
         
         const defaultData = [
-            { id: 0, name: 'OCEAN', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], characterImg: 'jotaro1.png' },
-            { id: 1, name: 'EMERALD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], characterImg: 'dio-brando.png' },
-            { id: 2, name: 'TANGERINE', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], characterImg: 'giorno.png' },
-            { id: 3, name: 'GOLD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], characterImg: 'theword1-Photoroom.png' }
+            { id: 0, name: 'OCEAN', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[0], characterImg: 'b1.png' },
+            { id: 1, name: 'EMERALD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[1], characterImg: 'b2.png' },
+            { id: 2, name: 'TANGERINE', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[2], characterImg: 'b3.png' },
+            { id: 3, name: 'GOLD', score: 0, count: 0, hasFinished: false, ...COLOR_OPTIONS[3], characterImg: 'b4.png' }
         ];
 
+        
         let teams = defaultData;
         let previousScores = {}; 
         let mainTitle = "Townhall 2026";
@@ -1192,5 +1183,4 @@
     </script>
 </body>
 </html>
-
 
