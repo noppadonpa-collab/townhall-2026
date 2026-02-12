@@ -291,7 +291,7 @@
                     <div class="h-2 md:h-3 w-32 md:w-48 bg-gradient-to-r from-yellow-400 to-pink-500 mt-1 md:mt-2 rounded-full"></div>
                 </div>
                 <div class="pb-1 text-right">
-                     <span class="text-responsive-target font-bold text-white/80 block">TARGET: <span class="text-white drop-shadow-md">100</span></span>
+                     <span class="text-responsive-target font-bold text-white/80 block">TARGET: <span class="text-white drop-shadow-md">1000</span></span>
                 </div>
             </header>
 
@@ -413,7 +413,7 @@
     </div>
 
     <script>
-        const TARGET_SCORE = 100;
+        const TARGET_SCORE = 1000;
         const EXCITED_THRESHOLD = 500; 
         
     const JOJO_CHARACTERS = [
@@ -1015,7 +1015,8 @@
                     </div>
                     
                   <div class="flex flex-col gap-4 mb-4">
-    <div class="grid grid-cols-4 gap-2">
+    <div class="grid grid-cols-5 gap-2">
+                <button onclick="addScore(${i}, 1)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+1</button>
         <button onclick="addScore(${i}, 20)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+20</button>
         <button onclick="addScore(${i}, 40)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+40</button>
         <button onclick="addScore(${i}, 60)" class="py-3 rounded-xl bg-slate-100 hover:bg-green-50 text-slate-700 hover:text-green-600 font-bold border border-slate-200 transition-all text-lg">+60</button>
@@ -1031,7 +1032,9 @@
 
     <hr class="border-slate-100">
 
-    <div class="grid grid-cols-4 gap-2">
+    <div class="grid grid-cols-5 gap-2">
+                <button onclick="addScore(${i}, -1)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-1</button>
+
         <button onclick="addScore(${i}, -20)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-20</button>
         <button onclick="addScore(${i}, -40)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-40</button>
         <button onclick="addScore(${i}, -60)" class="py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-400 font-medium border border-slate-200 text-base">-60</button>
